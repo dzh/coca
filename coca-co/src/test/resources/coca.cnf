@@ -1,0 +1,12 @@
+
+[ca]
+
+
+[co]
+co.impl=coca.co.rmq.RMQCo
+co.init=coca.co.init.FileCoInit
+
+co.io.channel.group = 
+
+co.io.encoder = 1
+co.io.decoder = 

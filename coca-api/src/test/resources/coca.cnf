@@ -1,0 +1,15 @@
+# 
+[co]
+# default local host=
+net.host.recv = 127.0.0.1:20170
+net.host.send = 127.0.0.1:20171
+
+# ip1:port1,ip2:port2...
+net.host.discovery = 127.0.0.1:20170
+
+
+[ca]
+
+
+
+
