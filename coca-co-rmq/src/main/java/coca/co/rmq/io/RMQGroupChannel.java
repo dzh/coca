@@ -44,6 +44,9 @@ public class RMQGroupChannel extends GroupChannel {
     private DefaultMQPushConsumer consumer;
     private DefaultMQProducer producer;
 
+    @Deprecated
+    public static final String P_NAMESRC = "co.rmq.namesrv"; // TODO
+
     private String namesrvAddr;
 
     public String getNamesrvAddr() {
@@ -61,7 +64,7 @@ public class RMQGroupChannel extends GroupChannel {
     @Override
     public CoChannel init(ChannelSelector selector) {
         super.init(selector);
-        setNamesrvAddr("192.168.60.42:9876"); // TODO
+        setNamesrvAddr(System.getProperty(P_NAMESRC)); // TODO
         try {
             startProducer();
             startConsumer();

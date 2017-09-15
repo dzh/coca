@@ -15,6 +15,7 @@ import coca.co.ins.CoIns.Ins;
 import coca.co.ins.TextCoIns;
 import coca.co.io.BasicCoIO;
 import coca.co.rmq.io.RMQChannelSelector;
+import coca.co.rmq.io.RMQGroupChannel;
 
 /**
  * @author dzh
@@ -28,6 +29,7 @@ public class TestRMQCo {
     @Test
     public void testCo() throws Exception {
         // init
+        System.setProperty(RMQGroupChannel.P_NAMESRC, "192.168.60.42:9876");// rmq namesrv
         try (Co co1 = new RMQCo().io(new BasicCoIO().selector(new RMQChannelSelector())).init()) {
 
             // join

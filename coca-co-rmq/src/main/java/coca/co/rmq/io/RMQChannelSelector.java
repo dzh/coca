@@ -13,6 +13,11 @@ import coca.co.io.channel.GroupChannel;
  */
 public class RMQChannelSelector extends GroupChannelSelector {
 
+
+    public RMQChannelSelector() {
+        super();
+    }
+
     @Override
     protected GroupChannel newGroupChannel(String name) {
         return new RMQGroupChannel(name);
