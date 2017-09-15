@@ -6,10 +6,16 @@ package coca.co.io.channel;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import coca.co.io.ChannelSelector;
 import coca.co.io.packet.InsPacket;
+import coca.co.io.packet.InsPacketException;
 import coca.co.io.packet.PacketCodec;
 import coca.co.io.packet.PacketCodec_v1;
 
@@ -18,7 +24,9 @@ import coca.co.io.packet.PacketCodec_v1;
  * @date Sep 8, 2017 1:45:11 PM
  * @since 0.0.1
  */
-public class GroupChannel implements CoChannel {
+public abstract class GroupChannel implements CoChannel {
+
+    static final Logger LOG = LoggerFactory.getLogger(GroupChannel.class);
 
     private String name;
 
@@ -26,9 +34,42 @@ public class GroupChannel implements CoChannel {
 
     protected ChannelSelector selector;
 
+    private volatile boolean open = true;
+
+    protected BlockingQueue<PacketFuture> wq;
+
+    protected BlockingQueue<InsPacket> rq;
+    // TODO thread pool?
+    private WriterThread wt;
+
     public GroupChannel(String name) {
         this.name = name;
         codec = new LinkedList<>();
+    }
+
+    @Override
+    public CoChannel init(ChannelSelector selector) {
+        this.selector = selector;
+        codec.add(new PacketCodec_v1());
+
+        wq = createWriteQueue();
+        rq = createReadQueue();
+
+        wt = new WriterThread("WriterThread-" + name);
+        wt.start();
+
+        open = true;
+        return this;
+    }
+
+    // TODO config
+    protected BlockingQueue<PacketFuture> createWriteQueue() {
+        return new LinkedBlockingQueue<PacketFuture>(10000);
+    }
+
+    // TODO config
+    protected BlockingQueue<InsPacket> createReadQueue() {
+        return new LinkedBlockingQueue<InsPacket>(10000);
     }
 
     @Override
@@ -42,8 +83,7 @@ public class GroupChannel implements CoChannel {
      */
     @Override
     public boolean isOpen() {
-        // TODO Auto-generated method stub
-        return false;
+        return open;
     }
 
     /*
@@ -52,19 +92,71 @@ public class GroupChannel implements CoChannel {
      */
     @Override
     public void close() throws IOException {
-
+        open = false;
+        if (!wq.isEmpty()) try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {}
+        wt.interrupt();
+        selector = null;
     }
 
     @Override
-    public ChannelFuture write(InsPacket packet) {
-        // TODO Auto-generated method stub
-        return null;
+    public PacketFuture write(InsPacket packet) throws CoChannelException {
+        if (!isOpen()) throw new CoChannelException(name() + " closed");
+        if (packet == null) throw new InsPacketException("packet is nil");
+        if (!isValidPacket(packet)) throw new InsPacketException("packet is invalid");
+
+        PacketFuture pf = new PacketFuture(packet);
+        try {
+            if (wq.offer(pf, 2, TimeUnit.SECONDS)) {
+                // TODO ack
+            } else {
+                pf.cancel(true);
+            }
+        } catch (InterruptedException e) {
+            LOG.error(e.getMessage(), e);
+            pf.cancel(true);
+        }
+        return pf;
+    }
+
+    class WriterThread extends Thread {
+
+        public WriterThread(String name) {
+            super(name);
+        }
+
+        public void run() {
+            LOG.info("{} start!", getName());
+            for (;;) {
+                if (!GroupChannel.this.isOpen() && wq.isEmpty()) break;
+                try {
+                    PacketFuture pf = wq.take();
+                    writeImpl(pf);
+                } catch (InterruptedException e) {
+                    LOG.warn("WriterThread {} interrupted:" + e.getMessage(), getName());
+                } catch (Exception e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
+            LOG.info("{} exitd!", getName());
+        }
+    }
+
+    protected abstract void writeImpl(PacketFuture pf) throws Exception;
+
+    protected boolean isValidPacket(InsPacket packet) {
+        // TODO
+        return true;
     }
 
     @Override
-    public InsPacket read(long timeout, TimeUnit unit) {
-        // TODO Auto-generated method stub
-        return null;
+    public InsPacket read(long timeout, TimeUnit unit) throws InterruptedException {
+        try {
+            return rq.poll(timeout, unit);
+        } catch (InterruptedException e) {
+            throw e;
+        }
     }
 
     @Override
@@ -72,13 +164,6 @@ public class GroupChannel implements CoChannel {
         if (obj == null) return false;
         if (obj instanceof GroupChannel) { return ((GroupChannel) obj).name().equals(name); }
         return false;
-    }
-
-    @Override
-    public CoChannel init(ChannelSelector selector) {
-        this.selector = selector;
-        codec.add(new PacketCodec_v1());
-        return this;
     }
 
     /**
@@ -96,7 +181,12 @@ public class GroupChannel implements CoChannel {
 
     @Override
     public String toString() {
-        return this.name;
+        return name;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
 }

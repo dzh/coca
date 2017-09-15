@@ -6,6 +6,7 @@ package coca.co.io;
 import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 
+import coca.co.CoException;
 import coca.co.ins.CoIns;
 import coca.co.io.channel.CoChannel;
 import coca.co.io.packet.InsPacket;
@@ -21,10 +22,10 @@ public interface ChannelSelector extends Closeable {
 
     CoIO io();
 
-    CoChannel select(CoIns<?> ins);
+    CoChannel select(CoIns<?> ins) throws CoException;
 
     InsPacket poll(long timeout, TimeUnit unit);
 
-    CoChannel newChannel(CoIns<?> ins);
+    CoChannel newCh(CoIns<?> ins);
 
 }

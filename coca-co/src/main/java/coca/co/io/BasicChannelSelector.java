@@ -10,4 +10,17 @@ package coca.co.io;
  */
 public abstract class BasicChannelSelector implements ChannelSelector {
 
+    protected CoIO io;
+
+    @Override
+    public ChannelSelector init(CoIO io) {
+        this.io = io;
+        return this;
+    }
+
+    @Override
+    public CoIO io() {
+        return io;
+    }
+
 }

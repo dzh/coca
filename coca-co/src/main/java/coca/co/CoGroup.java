@@ -23,6 +23,8 @@ public interface CoGroup {
 
     Collection<Co> members();
 
+    boolean contain(Co member);
+
     boolean join(Co co);
 
     boolean quit(Co co);

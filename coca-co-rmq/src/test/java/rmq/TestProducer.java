@@ -1,7 +1,7 @@
 /**
  * 
  */
-package coca.co.rmq;
+package rmq;
 
 import org.junit.Ignore;
 import org.junit.Test;

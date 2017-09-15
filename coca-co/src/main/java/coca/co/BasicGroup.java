@@ -4,6 +4,8 @@
 package coca.co;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ThreadSafe
@@ -12,12 +14,15 @@ import java.util.Collection;
  * @date Sep 7, 2017 6:15:10 PM
  * @since 0.0.1
  */
-public class BasicCoGroup implements CoGroup {
+public class BasicGroup implements CoGroup {
 
     private String name;
 
-    public BasicCoGroup(String name) {
+    Map<String, Co> members;
+
+    public BasicGroup(String name) {
         this.name = name;
+        members = new ConcurrentHashMap<>();
     }
 
     /*
@@ -35,7 +40,7 @@ public class BasicCoGroup implements CoGroup {
      */
     @Override
     public Collection<Co> members() {
-        return null;
+        return members.values();
     }
 
     /*
@@ -44,7 +49,7 @@ public class BasicCoGroup implements CoGroup {
      */
     @Override
     public boolean join(Co co) {
-        return false;
+        return members.putIfAbsent(co.id(), co) == null;
     }
 
     /*
@@ -53,7 +58,7 @@ public class BasicCoGroup implements CoGroup {
      */
     @Override
     public boolean quit(Co co) {
-        return false;
+        return members.remove(co.id()) != null;
     }
 
     @Override
@@ -61,6 +66,16 @@ public class BasicCoGroup implements CoGroup {
         if (obj == null) return false;
         if (obj instanceof CoGroup) { return ((CoGroup) obj).name().equals(name()); }
         return false;
+    }
+
+    @Override
+    public boolean contain(Co member) {
+        return members.containsKey(member.id());
+    }
+
+    @Override
+    public String toString() {
+        return name + " " + members.toString();
     }
 
 }

@@ -6,7 +6,7 @@ package coca.co.init;
 import coca.co.Co;
 
 /**
- * Initializer for Co
+ * Initializer of Co
  * 
  * @author dzh
  * @date Sep 2, 2017 10:06:36 PM

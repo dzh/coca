@@ -4,7 +4,8 @@
 package coca.co.ins.codec;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+
+import coca.co.CoConst;
 
 /**
  * @author dzh
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class TextInsCodec implements InsCodec {
 
-    private Charset charset = StandardCharsets.UTF_8;
+    private Charset charset = CoConst.UTF8;
 
     public static final String NAME = "co.TextInsCodec";
 
@@ -45,7 +46,7 @@ public class TextInsCodec implements InsCodec {
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
-        if (obj instanceof InsCodec) { return ((TextInsCodec) obj).name() == name(); }
+        if (obj instanceof InsCodec) { return ((TextInsCodec) obj).name().equals(name()); }
         return false;
     }
 

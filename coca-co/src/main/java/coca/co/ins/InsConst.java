@@ -16,16 +16,24 @@ public interface InsConst {
     /****************************** Ins Definition ******************************/
     // [0,1024]
     Ins VOID = new Ins(0, "void", "");
+
+    /**
+     * code: 0-succ 1-fail
+     * msg: code's detail that maybe nil
+     */
+    Ins ACK = new Ins(1, "ack", "code msg");
     /**
      * name: CoGropu.name
      * id: Co.id
      */
-    Ins JOIN = new Ins(1, "join", "name id");
+    Ins JOIN = new Ins(2, "join", "name id");
     /**
      * name: CoGropu.name
      * id: Co.id
      */
-    Ins QUIT = new Ins(2, "quit", "name id");
+    Ins QUIT = new Ins(3, "quit", "name id");
+
+    Ins HEARTBEAT = new Ins(4, "heartbeat", "");
 
     /****************************** Ins Constants ******************************/
     String ID = "id";

@@ -4,7 +4,6 @@
 package coca.co;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -31,7 +30,6 @@ public class TestBasicCo {
         System.out.println((byte) 127);
 
     }
-    
 
     public void testMD5() throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");

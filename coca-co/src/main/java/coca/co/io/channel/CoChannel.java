@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import coca.co.io.ChannelSelector;
 import coca.co.io.packet.InsPacket;
+import coca.co.io.packet.InsPacketException;
 
 /**
  * @author dzh
@@ -20,7 +21,16 @@ public interface CoChannel extends Channel {
 
     CoChannel init(ChannelSelector selector);
 
-    ChannelFuture write(InsPacket packet);
+    /**
+     * 
+     * @param packet
+     * @return
+     * @throws InsPacketException
+     *             if InsPacket is null or invalid
+     * @throws CoChannelException
+     *             if channel has closed
+     */
+    PacketFuture write(InsPacket packet) throws CoChannelException;
 
     /**
      * 
@@ -29,6 +39,6 @@ public interface CoChannel extends Channel {
      * @return
      * @throws InterruptedException
      */
-    InsPacket read(long timeout, TimeUnit unit);
+    InsPacket read(long timeout, TimeUnit unit) throws InterruptedException;
 
 }

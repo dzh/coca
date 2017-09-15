@@ -3,9 +3,6 @@
  */
 package coca.co.ins;
 
-import java.io.Closeable;
-import java.io.IOException;
-
 import coca.co.ins.CoIns.Ins;
 
 /**
@@ -13,7 +10,7 @@ import coca.co.ins.CoIns.Ins;
  * @date Sep 2, 2017 5:32:04 PM
  * @since 0.0.1
  */
-public class CoInsFactory implements Closeable {
+public class CoInsFactory {
 
     public CoInsFactory() {}
 
@@ -21,21 +18,29 @@ public class CoInsFactory implements Closeable {
         if (ins == null) return VoidCoIns.VOID;
 
         CoIns<?> coIns = isInnerIns(ins) ? innerIns(ins) : customIns(ins);
-        // if (coIns == null && isCoIns) {
-        // if (code) if (code == Ins.JOIN.code() || code == Ins.QUIT.code()) return new
-        // TextCoIns(ins).data(String.valueOf(data));
-        // }
 
-        return coIns == null ? VoidCoIns.VOID : coIns;
+        return coIns == null ? defaultIns(ins) : coIns;
     }
 
     protected CoIns<?> innerIns(Ins ins) {
-        if (Ins.JOIN.equals(ins) || Ins.QUIT.equals(ins)) { return new TextCoIns(ins); }
-        return null;
+        // if (Ins.JOIN.equals(ins) || Ins.QUIT.equals(ins)) { return new TextCoIns(ins); }
+        return new TextCoIns(ins);
     }
 
     protected CoIns<?> customIns(Ins ins) {
         return null;
+    }
+
+    protected CoIns<?> defaultIns(Ins ins) {
+        return new TextCoIns(ins);
+    }
+
+    // public <T> AckCoIns toAck(CoIns<T> ins, InsFormat<T, AckCoIns.Data> format) {
+    // AckCoIns ack = new AckCoIns(ins.ins());
+    // ack.to(ins.toGroup())
+    // }
+    public final CoIns<AckCoIns.Ack> newAck(CoIns<?> ins, int code, String msg) {
+        return new AckCoIns(InsConst.ACK).data(code, msg).id(ins.id());
     }
 
     /**
@@ -44,7 +49,7 @@ public class CoInsFactory implements Closeable {
      *            {@link Ins}
      * @return true if code in [0,1024]
      */
-    protected boolean isInnerIns(Ins ins) {
+    public boolean isInnerIns(Ins ins) {
         int code = ins.code();
         return code >= 0 && code <= 1024;
     }
@@ -70,7 +75,7 @@ public class CoInsFactory implements Closeable {
      * @return
      */
     public final CoIns<String> newQuit(String name, String... ids) {
-        return new TextCoIns(Ins.JOIN).data(toTextIns(name, ids));
+        return new TextCoIns(Ins.QUIT).data(toTextIns(name, ids));
     }
 
     protected String toTextIns(String data, String... others) {
@@ -84,7 +89,11 @@ public class CoInsFactory implements Closeable {
         return buf.toString();
     }
 
-    @Override
-    public void close() throws IOException {}
+    /**
+     * Invoked by Co.close
+     */
+    public void close() {
+
+    }
 
 }

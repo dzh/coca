@@ -3,7 +3,7 @@
 
 
 [co]
-co.impl=coca.co.rmq.RMQCo
+co.impl=coca.co.rmq.BasicCo
 co.init=coca.co.init.FileCoInit
 
 co.io.channel.group = 

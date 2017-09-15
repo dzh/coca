@@ -6,6 +6,7 @@ package coca.co.io.packet;
 import java.nio.ByteBuffer;
 
 import coca.co.ins.ByteBufferCoIns;
+import coca.co.util.IDUtil;
 
 /**
  * 
@@ -21,6 +22,18 @@ public class BasicInsPacket implements InsPacket {
     private short version = 1;
     private int magic;
     private int hash;
+
+    private String id;
+    private int type;
+    private long cntl;
+
+    public BasicInsPacket() {
+        this(IDUtil.uuid());
+    }
+
+    public BasicInsPacket(String id) {
+        this.id = id;
+    }
 
     @Override
     public int magic() {
@@ -79,6 +92,44 @@ public class BasicInsPacket implements InsPacket {
     public InsPacket packet(ByteBuffer packet) {
         this.packet = packet;
         return this;
+    }
+
+    @Override
+    public long cntl() {
+        return cntl;
+    }
+
+    @Override
+    public InsPacket cntl(long cntl) {
+        this.cntl = cntl;
+        return this;
+    }
+
+    @Override
+    public int type() {
+        return type;
+    }
+
+    @Override
+    public InsPacket type(int type) {
+        this.type = type;
+        return this;
+    }
+
+    @Override
+    public String id() {
+        return id;
+    }
+
+    @Override
+    public InsPacket id(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 
 }

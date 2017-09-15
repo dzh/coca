@@ -1,4 +1,4 @@
-package coca.co.rmq;
+package rmq;
 
 import java.util.List;
 

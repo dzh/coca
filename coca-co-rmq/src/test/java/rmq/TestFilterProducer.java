@@ -1,4 +1,4 @@
-package coca.co.rmq;
+package rmq;
 
 import org.junit.Before;
 import org.junit.Ignore;

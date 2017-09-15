@@ -10,9 +10,9 @@ import coca.co.ins.ByteBufferCoIns;
 /**
  * <pre>
  * Packet Binary Format([byte size]):
- * Packet -> Magic[4] + Version[2] + CoInsSize[4] + CoIns[] + Hash[4]
- *                                                    |
- * CoIns  -> InsSize[2] + Ins[] + FromSize[1] + From[] + CodecSize[1] + Codec[] + DataSize[4] + Data[]
+ * Packet -> Magic[4] + Version[2] + CNTL[8] + Type[4] + IDSize[1] + ID[] + CoInsSize[4] + CoIns[] + Hash[4]
+ *                                                                                           |
+ * CoIns  -> InsSize[2] + Ins[] + IDSize[1] + ID[] + CNTL[8] + TTL[8] + FromSize[1] + From[] + CodecSize[1] + Codec[] + DataSize[4] + Data[]
  *                         |
  * Ins    -> code[4] + nameSize[1] + name[] + formatSize[1] + format[]
  * </pre>
@@ -40,6 +40,11 @@ public interface InsPacket {
      */
     int M = 0x636F6361;
 
+    /**
+     * 
+     */
+    int CNTL_ACK = 1;
+
     int magic();
 
     InsPacket magic(int magic);
@@ -47,6 +52,18 @@ public interface InsPacket {
     short version();
 
     InsPacket version(short v);
+
+    long cntl();
+
+    InsPacket cntl(long cntl);
+
+    int type();
+
+    InsPacket type(int type);
+
+    String id();
+
+    InsPacket id(String id);
 
     ByteBufferCoIns ins();
 
@@ -59,5 +76,9 @@ public interface InsPacket {
     ByteBuffer packet();
 
     InsPacket packet(ByteBuffer packet);
+
+    public enum Type {
+        ACK, GROUP
+    }
 
 }

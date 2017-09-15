@@ -4,19 +4,19 @@
 	<parent>
 		<groupId>dzh.github.io</groupId>
 		<artifactId>coca-parent</artifactId>
-		<version>0.0.1</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>coca-co-rmq</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>dzh.github.io</groupId>
-			<artifactId>coca-co</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.alibaba.rocketmq</groupId>
 			<artifactId>rocketmq-client</artifactId>
 			<version>3.6.2.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>dzh.github.io</groupId>
+			<artifactId>coca-co</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

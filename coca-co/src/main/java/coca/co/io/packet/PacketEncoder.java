@@ -21,21 +21,6 @@ public interface PacketEncoder {
     ByteBuffer encode(InsPacket ins);
 
     /**
-     * @return Magic[4] + Version[2] + CoInsSize[4] + CoIns[] + Hash[4]
-     */
-    // byte[] packet();
-
-    /**
-     * @return FromSize[1] + From[] + InsSize[2] + Ins[] + CodecSize[1] + Codec[] + DataSize[4] + Data[]
-     */
-    // byte[] coIns();
-
-    /**
-     * @return code[4] + nameSize[1] + name[] + formatSize[1] + format[]
-     */
-    // byte[] ins();
-
-    /**
      * 
      * @return
      */

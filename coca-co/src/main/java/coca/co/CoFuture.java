@@ -12,4 +12,25 @@ import java.util.concurrent.Future;
  */
 public interface CoFuture<V> extends Future<V> {
 
+    void result(V result);
+
+    /**
+     * @param result
+     *            parent future's result
+     * @return
+     */
+    V change(Object result);
+
+    /**
+     * 
+     * @return
+     */
+    CoFuture<?> next();
+
+    /**
+     * 
+     * @return
+     */
+    CoFuture<?> next(CoFuture<?> f);
+
 }

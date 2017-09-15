@@ -18,9 +18,30 @@ import coca.co.ins.fmt.InsFormat;
  */
 public interface CoIns<T> extends Cloneable {
 
-    public static final int MAX_DATA_BYTE = 1024 * 1024;// 1M
+    int MAX_DATA_BYTE = 1024 * 1024;// 1M
+
+    // ttl
+    int TTL_NEVER_TIMEOUT = 0;
+
+    // Control Constants
+    int CNTL_ACK = 1 << 0;
 
     String id();
+
+    CoIns<T> id(String id);
+
+    long cntl();
+
+    CoIns<T> cntl(long cntl);
+
+    /**
+     * millisecond to explain that the expired time of CoIns
+     * 
+     * @return
+     */
+    long ttl();
+
+    CoIns<T> ttl(long ttl);
 
     /**
      * Instruction
@@ -101,6 +122,11 @@ public interface CoIns<T> extends Cloneable {
 
         public String format() {
             return this.format;
+        }
+
+        @Override
+        public int hashCode() {
+            return code;
         }
 
         @Override

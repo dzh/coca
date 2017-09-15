@@ -5,9 +5,9 @@ package coca.co;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -16,15 +16,27 @@ import org.slf4j.LoggerFactory;
 
 import coca.co.ins.CoIns;
 import coca.co.ins.CoInsFactory;
+import coca.co.ins.InsResult;
+import coca.co.ins.actor.JoinActor;
+import coca.co.ins.actor.QuitActor;
 import coca.co.ins.codec.InsCodec;
 import coca.co.ins.codec.TextInsCodec;
-import coca.co.io.BasicCoIO;
 import coca.co.io.CoIO;
-import coca.co.io.PacketResult;
+import coca.co.util.IDUtil;
 
 /**
  * 
- * ThreadSafe
+ * <pre>
+ * For Example:
+ * {@code
+ *      Co co = new BasicCo().init(); // create Co
+ *      co.io(new BasicCoIO()); // add CoIO
+ *      co.insFactory(new CoInsFactory()); // add ins factory
+ *      CoIns ins = co.insFactory.newIns(InsConst.JOIN);  // create CoIns
+ *      ins.from(co).toGroup(group("name")).data("name id"); // fill ins's data
+ *      co.pub(ins); // publish ins
+ * }
+ * </pre>
  * 
  * @author dzh
  * @date Aug 25, 2017 7:16:42 PM
@@ -42,32 +54,55 @@ public class BasicCo implements Co {
 
     private Map<String, InsCodec> codecs;
 
-    private final Object lock = new Object();
+    private volatile boolean closed = false;
 
     private CoIO io;
 
-    // TODO to config
-    private CoInsFactory insFactory = new CoInsFactory();
+    private static final TextInsCodec TEXT_CODEC = new TextInsCodec();
+
+    private CoInsFactory insFactory;
 
     /**
-     * 
      * @param id
      * @throws NullPointerException
      */
     public BasicCo(String id) {
         this.id = id;
-        groups = initGroup();
-        listeners = initListener();
-        codecs = initInsCodec();
-        withCodec(new TextInsCodec());
+    }
 
+    /**
+     * @throws NullPointerException
+     */
+    @Override
+    public Co init() {
+        groups = initGroup();
         if (groups == null) throw new NullPointerException("groups is nil");
+
+        listeners = initListener();
         if (listeners == null) throw new NullPointerException("listeners is nil");
+
+        codecs = initInsCodec();
         if (codecs == null) throw new NullPointerException("codecs is nil");
+        withCodec(TEXT_CODEC);
+
+        if (insFactory == null) insFactory = new CoInsFactory();
+
+        if (io == null) throw new NullPointerException("io is nil");
+        // TODO
+        io.withActor(new JoinActor()).withActor(new QuitActor());
+
+        this.closed = false;
+        LOG.info("{} init", this);
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 
     protected Map<String, InsCodec> initInsCodec() {
-        return new HashMap<String, InsCodec>();
+        return Collections.synchronizedMap(new HashMap<String, InsCodec>());
     }
 
     protected Map<String, CoGroup> initGroup() {
@@ -75,11 +110,11 @@ public class BasicCo implements Co {
     }
 
     public BasicCo() {
-        this(genId());
+        this(IDUtil.newCoID());
     }
 
     protected Map<String, CoListener> initListener() {
-        return new HashMap<String, CoListener>();
+        return Collections.synchronizedMap(new HashMap<String, CoListener>());
     }
 
     @Override
@@ -93,99 +128,90 @@ public class BasicCo implements Co {
     }
 
     @Override
-    public CoGroup group(String name) {
-        return groups.get(name);
-    }
-
-    private CoGroup group(String name, CoGroup def) {
-        CoGroup g = group(name);
-        return g == null ? def : g;
-    }
-
-    public static final String genId() { // TODO
-        return UUID.randomUUID().toString().replaceAll("-", "").toLowerCase();
-    }
-
-    /**
-     * @param name
-     *            group name
-     */
-    @Override
-    public CoFuture<CoGroup> join(String name) throws CoException {
-        CoIns<String> ins = insFactory.newJoin(name, id()).from(this).to(group(name, new BasicCoGroup(name)));
-        pub(ins);// TODO
-        return null;
-    }
-
-    /**
-     * @param name
-     *            group name
-     */
-    @Override
-    public CoFuture<CoGroup> quit(String name) throws CoException {
-        CoIns<String> ins = insFactory.newQuit(name, id()).from(this).to(group(name, new BasicCoGroup(name)));
-        pub(ins);// TODO
-        return null;
+    public CoGroup group(String name, boolean addIfNil) {
+        CoGroup g = groups.get(name);
+        if (g == null && addIfNil) {
+            groups.putIfAbsent(name, new BasicGroup(name));
+            return groups.get(name);
+        }
+        return g;
     }
 
     @Override
-    public CoFuture<PacketResult> pub(CoIns<?> ins) throws CoException {
+    public CoFuture<InsResult> join(String name) throws CoException {
+        if (isClosed()) throw new CoException("Co closed!");
+        CoIns<String> ins = insFactory.newJoin(name, id()).from(this).to(group(name, true));
+        return pub(ins);
+    }
+
+    @Override
+    public CoFuture<InsResult> quit(String name) throws CoException {
+        if (isClosed()) throw new CoException("Co closed!");
+        CoIns<String> ins = insFactory.newQuit(name, id()).from(this).to(group(name, true));
+        return pub(ins);
+    }
+
+    @Override
+    public CoFuture<InsResult> pub(CoIns<?> ins) throws CoException {
+        if (isClosed()) throw new CoException("Co closed!");
         return io.pub(ins);
     }
 
     @Override
     public CoIns<?> sub(long timeout, TimeUnit unit) throws CoException {
-
-        return null;
+        if (isClosed()) throw new CoException("Co closed!");
+        return io.sub(timeout, unit);
     }
 
     @Override
     public Co withListener(String name, CoListener l) {
         if (name == null || l == null) return this;
-        synchronized (lock) {
-            listeners.put(name, l);
-        }
+        listeners.put(name, l);
         return this;
     }
 
     @Override
     public CoListener removeListener(String name) {
         if (name == null) return null;
-        synchronized (lock) {
-            return listeners.remove(name);
-        }
+        return listeners.remove(name);
     }
 
     @Override
     public void close() throws IOException {
-        synchronized (lock) {
-            listeners.clear();
-            codecs.clear();
+        // quit group //TODO abnormal exit how to quit
+        for (CoGroup g : groups.values()) {
+            if (g.contain(this)) try {
+                quit(g.name());
+            } catch (CoException e) {
+                LOG.error(e.getMessage(), e);
+            }
         }
+
+        closed = true; // indicate that co closed
+        closeIO();
+        if (insFactory != null) insFactory.close();
+
+        listeners.clear();
+        codecs.clear();
         groups.clear();
-        insFactory.close();
+        LOG.info("Co-{} closed!", this);
     }
 
     @Override
     public Co withCodec(InsCodec codec) {
-        synchronized (lock) {
-            codecs.put(codec.name(), codec);
-        }
+        codecs.put(codec.name(), codec);
         return this;
     }
-
-    private static final TextInsCodec TEXT_CODEC = new TextInsCodec();
 
     @Override
     public InsCodec codec(String name) {
         if (name == null) return TEXT_CODEC;
-        synchronized (lock) {
-            return codecs.getOrDefault(name, TEXT_CODEC);
-        }
+        return codecs.getOrDefault(name, TEXT_CODEC);
     }
 
     @Override
     public Co insFactory(CoInsFactory insFactory) {
+        if (this.insFactory != null) this.insFactory.close();
         this.insFactory = insFactory;
         return this;
     }
@@ -197,13 +223,25 @@ public class BasicCo implements Co {
 
     @Override
     public Co io(CoIO io) {
+        if (this.io != null) closeIO();
         this.io = io;
+        io.init(this);
         return this;
+    }
+
+    private void closeIO() {
+        if (io != null) {
+            try {
+                this.io.close();
+            } catch (IOException e) {
+                LOG.warn(e.getMessage(), e);
+            }
+        }
     }
 
     @Override
     public int hashCode() {
-        return id().hashCode();
+        return id.hashCode();
     }
 
     @Override
@@ -212,9 +250,15 @@ public class BasicCo implements Co {
     }
 
     @Override
-    public Co init() {
-        io = new BasicCoIO(this);
-        return this;
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj instanceof Co) return ((Co) obj).id().equals(id);
+        return false;
+    }
+
+    @Override
+    public boolean isClosed() {
+        return closed;
     }
 
 }

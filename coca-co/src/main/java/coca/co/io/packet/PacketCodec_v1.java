@@ -50,33 +50,49 @@ public class PacketCodec_v1 implements PacketCodec {
     }
 
     class PacketEncoderImpl implements PacketEncoder {
+        private InsPacket _packet;
         private ByteBufferCoIns _ins;
-        private int _m;
 
         public byte[] packet() {
             byte[] coIns = coIns();
-            ByteBuffer buf = ByteBuffer.allocate(4 + 2 + 4 + coIns.length + 4);
-            buf.putInt(_m);
+            byte[] id = id();
+            ByteBuffer buf = ByteBuffer.allocate(4 + 2 + 8 + 4 + 1 + id.length + 4 + coIns.length + 4);
+            buf.putInt(_packet.magic());
             short v = version();
-            if ((v & 0xffff) > 0) throw new InsPacketException("PacketEncoder invalid version:" + v);
+            if ((v & 0xffff) < 1) throw new InsPacketException("PacketEncoder invalid version:" + v);
             buf.putShort(v);
+            buf.putLong(_packet.cntl());
+            buf.putInt(_packet.type());
+            buf.put((byte) id.length);
+            buf.put(id);
             buf.putInt(coIns.length);
             buf.put(coIns);
             buf.putInt(MD5Hash.md5hash(buf.array()));
             return buf.array();
         }
 
+        public byte[] id() {
+            Charset charset = charset();
+            return _packet.id().getBytes(charset);
+        }
+
         public byte[] coIns() {
             Charset charset = charset();
+            byte[] ins = ins();
             byte[] from = _ins.from().id().getBytes(charset);
-            byte[] codec = _ins.codec().getBytes(charset);
-            byte[] data = _ins.data().array();
+            byte[] codec = _ins.codec() == null ? new byte[0] : _ins.codec().getBytes(charset);
+            byte[] data = _ins.data() == null ? new byte[0] : _ins.data().array();
+            byte[] id = _ins.id().getBytes(charset);
             if (data.length > CoIns.MAX_DATA_BYTE) // ≤ 1M
                 throw new InsPacketException(_ins.ins().toString() + " data's size overflow:" + data.length);
-            byte[] ins = ins();
-            ByteBuffer buf = ByteBuffer.allocate(2 + ins.length + 1 + from.length + 1 + codec.length + 4 + data.length);
-            buf.put((byte) ins.length);
+            ByteBuffer buf =
+                    ByteBuffer.allocate(2 + ins.length + 1 + id.length + 8 + 8 + 1 + from.length + 1 + codec.length + 4 + data.length);
+            buf.putShort((short) ins.length);
             buf.put(ins);
+            buf.put((byte) id.length);
+            buf.put(id);
+            buf.putLong(_ins.cntl());
+            buf.putLong(_ins.ttl());
             buf.put((byte) from.length);
             buf.put(from);
             buf.put((byte) codec.length);
@@ -109,9 +125,9 @@ public class PacketCodec_v1 implements PacketCodec {
         }
 
         @Override
-        public ByteBuffer encode(InsPacket ins) {
-            this._ins = ins.ins();
-            this._m = ins.magic();
+        public ByteBuffer encode(InsPacket packet) {
+            this._packet = packet;
+            this._ins = packet.ins();
             return ByteBuffer.wrap(packet());
         }
     }
@@ -125,15 +141,25 @@ public class PacketCodec_v1 implements PacketCodec {
             _ins.packet(_packet);
 
             Charset charset = charset();
-
             // magic
             int magic = _packet.getInt();
             _ins.magic(magic);
             // version
             short v = _packet.getShort();
-            if ((v & 0xffff) > 0) throw new InsPacketException("PacketEncoder invalid version:" + v);
+            if ((v & 0xffff) < 1) throw new InsPacketException("PacketEncoder invalid version:" + v);
             _ins.version(v);
-            // CoIns
+            // cntl
+            long cntl = _packet.getLong();
+            _ins.cntl(cntl);
+            // type
+            int type = _packet.getInt();
+            _ins.type(type);
+            // id
+            int idSize = _packet.get();
+            byte[] id = new byte[idSize];
+            _packet.get(id);
+            _ins.id(new String(id, charset));
+            // CoIns data
             int coInsSize = _packet.getInt();
             ByteBuffer coInsBuf = ByteBuffer.wrap(new byte[coInsSize]);
             _packet.get(coInsBuf.array());
@@ -145,37 +171,57 @@ public class PacketCodec_v1 implements PacketCodec {
             _packet.putInt(0);
             if (MD5Hash.md5hash(_packet.array()) != hash) throw new InsPacketException("PacketDecoder invalid hash:" + hash);
             _ins.hash(hash);
+            // coIns
+            _ins.ins(coIns(coInsBuf));
+            return _ins;
+        }
+
+        public ByteBufferCoIns coIns(ByteBuffer bytes) {
+            Charset charset = charset();
             // Ins
-            int insSize = coInsBuf.getChar();
+            int insSize = bytes.getShort();
             ByteBuffer insBuf = ByteBuffer.wrap(new byte[insSize]);
-            coInsBuf.get(insBuf.array());
+            bytes.get(insBuf.array());
             ByteBufferCoIns coIns = new ByteBufferCoIns(ins(insBuf));
+            // id
+            int idSize = bytes.get();
+            ByteBuffer idBuf = ByteBuffer.wrap(new byte[idSize]);
+            bytes.get(idBuf.array());
+            coIns.id(new String(idBuf.array(), charset));
+            // cntl
+            coIns.cntl(bytes.getLong());
+            // ttl
+            coIns.ttl(bytes.getLong());
             // from
-            int fromSize = coInsBuf.get();
+            int fromSize = bytes.get();
             byte[] from = new byte[fromSize];
-            coInsBuf.get(from);
+            bytes.get(from);
             coIns.from(new BasicCo(new String(from, charset)));
             // codec
-            int codecSize = coInsBuf.get();
-            byte[] codec = new byte[codecSize];
-            coInsBuf.get(codec);
-            coIns.codec(new String(codec, charset));
+            int codecSize = bytes.get();
+            if (codecSize > 0) {
+                byte[] codec = new byte[codecSize];
+                bytes.get(codec);
+                coIns.codec(new String(codec, charset));
+            }
             // data
-            int dataSize = coInsBuf.getInt();
-            byte[] data = new byte[dataSize];
-            coInsBuf.get(data);
-            coIns.data(ByteBuffer.wrap(data));
-
-            _ins.ins(coIns);
-            return _ins;
+            int dataSize = bytes.getInt();
+            if (dataSize > 0) {
+                byte[] data = new byte[dataSize];
+                bytes.get(data);
+                coIns.data(ByteBuffer.wrap(data));
+            }
+            return coIns;
         }
 
         public Ins ins(ByteBuffer bytes) {
             int code = bytes.getInt();
             int nameSize = bytes.get();
             byte[] name = new byte[nameSize];
+            bytes.get(name);
             int fmtSize = bytes.get();
             byte[] format = new byte[fmtSize];
+            bytes.get(format);
             return new Ins(code, new String(name, charset()), new String(format, charset()));
         }
 

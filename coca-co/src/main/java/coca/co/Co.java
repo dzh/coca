@@ -9,9 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 import coca.co.ins.CoIns;
 import coca.co.ins.CoInsFactory;
+import coca.co.ins.InsResult;
+import coca.co.ins.VoidCoIns;
 import coca.co.ins.codec.InsCodec;
 import coca.co.io.CoIO;
-import coca.co.io.PacketResult;
 
 /**
  * <p>
@@ -37,6 +38,8 @@ public interface Co extends Closeable {
 
     Co init();
 
+    boolean isClosed();
+
     /**
      * {@link CoGroup} list which {@link Co} has joined
      * 
@@ -49,23 +52,23 @@ public interface Co extends Closeable {
      * 
      * @return CoGroup
      */
-    CoGroup group(String name);
+    CoGroup group(String name, boolean addIfNil);
 
     /**
      * 
      * @param name
-     *            group name
-     * @return {@link CoGroup} to join
+     *            CoGroup's name
+     * @return
      */
-    CoFuture<CoGroup> join(String name) throws CoException;
+    CoFuture<InsResult> join(String name) throws CoException;
 
     /**
      * 
      * @param name
-     *            group name
-     * @return {@link CoGroup} to quit
+     *            CoGroup's name
+     * @return
      */
-    CoFuture<CoGroup> quit(String name) throws CoException;
+    CoFuture<InsResult> quit(String name) throws CoException;
 
     /**
      * publish ins
@@ -75,7 +78,7 @@ public interface Co extends Closeable {
      * @return Co
      * @throws CoException
      */
-    CoFuture<PacketResult> pub(CoIns<?> ins) throws CoException;
+    CoFuture<InsResult> pub(CoIns<?> ins) throws CoException;
 
     /**
      * For example:
@@ -85,8 +88,8 @@ public interface Co extends Closeable {
      *     CoIns<?> ins = null;
      *     for(;;){
      *         try{
-     *           ins = sub(1000);
-     *           if(ins==null) continue;
+     *           ins = sub(1,TimeUnit.SECONDS);
+     *           if(ins == VoidCoIns.VOID) continue;
      *         }catch(CoException e){
      *           LOG.error(...)
      *           break;
@@ -101,9 +104,8 @@ public interface Co extends Closeable {
      *            time to wait for a CoIns. if wait_msec=-1 then to wait
      *            forever until a CoIns received or throw CoException
      * @param TimeUnit
-     * @return CoIns or null if timeout
+     * @return CoIns or {@link VoidCoIns#VOID} if timeout
      * @throws CoException
-     *             sub
      */
     CoIns<?> sub(long timeout, TimeUnit unit) throws CoException;
 
