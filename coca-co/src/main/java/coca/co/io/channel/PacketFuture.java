@@ -36,22 +36,17 @@ public class PacketFuture extends BasicFuture<PacketResult> {
 
     @Override
     public boolean isDone() {
-        if (isCancelled()) return true;
+        if (!super.isDone()) return false;
         boolean done = false;
-        if (hasAck()) {
-            done = result.st == PacketResult.IOSt.RECV_SUCC || result.st == PacketResult.IOSt.RECV_FAIL
-                    || result.st == PacketResult.IOSt.RECV_TIMEOUT;
-        } else {
-            done = result.st == PacketResult.IOSt.SEND_SUCC || result.st == PacketResult.IOSt.SEND_FAIL;
+        if (result != null) {
+            if (hasAck()) {
+                done = result.st == PacketResult.IOSt.RECV_SUCC || result.st == PacketResult.IOSt.RECV_FAIL
+                        || result.st == PacketResult.IOSt.RECV_TIMEOUT;
+            } else {
+                done = result.st == PacketResult.IOSt.SEND_SUCC || result.st == PacketResult.IOSt.SEND_FAIL;
+            }
         }
         return done;
-    }
-
-    @Override
-    protected void doDone() {
-        if (this.next != null) {
-            next().change(result);
-        }
     }
 
     @Override

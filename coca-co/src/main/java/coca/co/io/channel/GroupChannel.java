@@ -48,7 +48,7 @@ public abstract class GroupChannel implements CoChannel {
     }
 
     @Override
-    public CoChannel init(ChannelSelector selector) {
+    public CoChannel init(ChannelSelector selector) throws CoChannelException {
         this.selector = selector;
         codec.add(new PacketCodec_v1());
 
@@ -130,13 +130,15 @@ public abstract class GroupChannel implements CoChannel {
             LOG.info("{} start!", getName());
             for (;;) {
                 if (!GroupChannel.this.isOpen() && wq.isEmpty()) break;
+                PacketFuture pf = null;
                 try {
-                    PacketFuture pf = wq.take();
+                    pf = wq.take();
                     writeImpl(pf);
                 } catch (InterruptedException e) {
                     LOG.warn("WriterThread {} interrupted:" + e.getMessage(), getName());
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
+                    if (pf != null) pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
                 }
             }
             LOG.info("{} exitd!", getName());

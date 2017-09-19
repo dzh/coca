@@ -39,7 +39,11 @@ public abstract class BasicFuture<V> implements CoFuture<V> {
         }
     }
 
-    protected abstract void doDone();
+    protected void doDone() {
+        if (this.next != null) {
+            next().change(result);
+        }
+    }
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
@@ -59,6 +63,7 @@ public abstract class BasicFuture<V> implements CoFuture<V> {
 
     @Override
     public boolean isDone() {
+        if (result == null) return false;
         return isCancelled();
     }
 

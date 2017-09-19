@@ -44,11 +44,6 @@ public class InsFuture extends BasicFuture<InsResult> {
     }
 
     @Override
-    protected void doDone() {
-
-    }
-
-    @Override
     public InsResult change(Object result) {
         if (result instanceof PacketResult) {
             result(new InsResult(

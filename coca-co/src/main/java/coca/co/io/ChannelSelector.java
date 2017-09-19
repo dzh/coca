@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import coca.co.CoException;
 import coca.co.ins.CoIns;
 import coca.co.io.channel.CoChannel;
+import coca.co.io.channel.CoChannelException;
 import coca.co.io.packet.InsPacket;
 
 /**
@@ -26,6 +27,6 @@ public interface ChannelSelector extends Closeable {
 
     InsPacket poll(long timeout, TimeUnit unit);
 
-    CoChannel newCh(CoIns<?> ins);
+    CoChannel newCh(CoIns<?> ins) throws CoChannelException;
 
 }

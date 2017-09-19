@@ -18,6 +18,7 @@ import coca.co.CoException;
 import coca.co.ins.CoIns;
 import coca.co.ins.actor.CoActor;
 import coca.co.io.channel.CoChannel;
+import coca.co.io.channel.CoChannelException;
 import coca.co.io.channel.GroupChannel;
 import coca.co.io.packet.InsPacket;
 
@@ -67,7 +68,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
     }
 
     @Override
-    public CoChannel newCh(CoIns<?> ins) {
+    public CoChannel newCh(CoIns<?> ins) throws CoChannelException {
         String name = ins.toGroup().name();
         if (closed) return null;
         GroupChannel ch = newGroupChannel(name);

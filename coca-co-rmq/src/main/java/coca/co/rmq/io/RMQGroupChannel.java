@@ -27,6 +27,7 @@ import com.alibaba.rocketmq.common.protocol.heartbeat.MessageModel;
 import coca.co.Co;
 import coca.co.io.ChannelSelector;
 import coca.co.io.channel.CoChannel;
+import coca.co.io.channel.CoChannelException;
 import coca.co.io.channel.GroupChannel;
 import coca.co.io.channel.PacketFuture;
 import coca.co.io.channel.PacketResult;
@@ -62,7 +63,7 @@ public class RMQGroupChannel extends GroupChannel {
     }
 
     @Override
-    public CoChannel init(ChannelSelector selector) {
+    public CoChannel init(ChannelSelector selector) throws CoChannelException {
         super.init(selector);
         setNamesrvAddr(System.getProperty(P_NAMESRC)); // TODO
         try {
@@ -159,7 +160,7 @@ public class RMQGroupChannel extends GroupChannel {
     protected void writeImpl(PacketFuture pf) throws Exception {
         InsPacket packet = pf.send();
         packet.type(InsPacket.Type.GROUP.ordinal());
-        ByteBuffer bytes = RMQGroupChannel.this.codec(packet.version()).encode(packet);
+        ByteBuffer bytes = codec(packet.version()).encode(packet);
         String topic = packet.ins().toGroup().name();
         List<Co> toCo = packet.ins().toCo();
         if (toCo.isEmpty()) {

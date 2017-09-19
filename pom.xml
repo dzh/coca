@@ -94,7 +94,8 @@
 		<module>coca-co</module>
 		<module>coca-ca</module>
 		<module>coca-co-rmq</module>
-		<module>coco-co-redis</module>
+		
+		<module>coca-co-redis</module>
 	</modules>
 	<name>coca</name>
 	<description>Co-Cache Framework</description>

@@ -19,7 +19,7 @@ public interface CoChannel extends Channel {
 
     String name();
 
-    CoChannel init(ChannelSelector selector);
+    CoChannel init(ChannelSelector selector) throws CoChannelException;
 
     /**
      * 

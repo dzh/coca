@@ -3,5 +3,5 @@
 
 
 [co]
-co.impl=coca.co.rmq.RMQCo
+co.impl=coca.co.BasicCo
 co.init=coca.co.init.FileCoInit
