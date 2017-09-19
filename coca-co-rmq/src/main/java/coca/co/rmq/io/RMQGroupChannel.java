@@ -90,7 +90,7 @@ public class RMQGroupChannel extends GroupChannel {
         consumer.setConsumeTimestamp(consumeTimestamp());
         consumer.setConsumeTimeout(6);
         consumer.setMessageModel(MessageModel.BROADCASTING);
-        consumer.subscribe(name(), name() + " || " + String.valueOf(selector.io().co().hashCode()));
+        consumer.subscribe(name(), name() + " || " + String.valueOf(selector.io().co().hashCode()));// TODO
         consumer.setVipChannelEnabled(false);
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override

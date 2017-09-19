@@ -3,6 +3,8 @@
  */
 package coca.co.init;
 
+import java.util.Map;
+
 import coca.co.Co;
 
 /**
@@ -14,11 +16,20 @@ import coca.co.Co;
  */
 public interface CoInit {
 
+    String P_CO_INIT = "co.init";
+
+    String P_CO = "co";
+
+    String P_CO_IO = "co.io";
+
+    String P_CO_IO_SELECTOR = "co.io.selector";
+
     /**
      * invoked after
      * 
      * @param co
+     * @throws CoInitException
      */
-    Co init(Co co);
+    Co init(Map<String, String> conf);
 
 }

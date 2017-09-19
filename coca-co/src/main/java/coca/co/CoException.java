@@ -10,14 +10,11 @@ package coca.co;
  */
 public class CoException extends Exception {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
 
     /**
      * 
      */
+    private static final long serialVersionUID = -4814777955302294846L;
 
     public CoException() {
         super();

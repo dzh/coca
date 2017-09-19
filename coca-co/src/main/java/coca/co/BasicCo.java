@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coca.co.init.BasicCoInit;
+import coca.co.init.CoInit;
+import coca.co.init.CoInitException;
 import coca.co.ins.CoIns;
 import coca.co.ins.CoInsFactory;
 import coca.co.ins.InsResult;
@@ -62,6 +65,8 @@ public class BasicCo implements Co {
 
     private CoInsFactory insFactory;
 
+    private CoConf conf;
+
     /**
      * @param id
      * @throws NullPointerException
@@ -70,11 +75,33 @@ public class BasicCo implements Co {
         this.id = id;
     }
 
+    public static final Co create(Map<String, String> conf) {
+        CoInit init = null;
+        if (conf.containsKey(CoInit.P_CO_INIT)) {
+            try {
+                init = (CoInit) Thread.currentThread().getContextClassLoader().loadClass(conf.get(CoInit.P_CO_INIT)).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new CoInitException(e);
+            }
+        } else {
+            init = new BasicCoInit();
+        }
+        return init.init(conf);
+    }
+
+    @Override
+    public CoConf conf() {
+        return conf;
+    }
+
     /**
      * @throws NullPointerException
      */
     @Override
-    public Co init() {
+    public Co init(CoConf conf) {
+        if (conf == null) throw new NullPointerException("conf is nil");
+        this.conf = conf;
+
         groups = initGroup();
         if (groups == null) throw new NullPointerException("groups is nil");
 
@@ -140,14 +167,16 @@ public class BasicCo implements Co {
     @Override
     public CoFuture<InsResult> join(String name) throws CoException {
         if (isClosed()) throw new CoException("Co closed!");
-        CoIns<String> ins = insFactory.newJoin(name, id()).from(this).to(group(name, true));
+        CoIns<String> ins = insFactory.newJoin(name, id()).from(this).to(new BasicGroup(name));
         return pub(ins);
     }
 
     @Override
     public CoFuture<InsResult> quit(String name) throws CoException {
         if (isClosed()) throw new CoException("Co closed!");
-        CoIns<String> ins = insFactory.newQuit(name, id()).from(this).to(group(name, true));
+        CoGroup g = group(name, false);
+        if (g == null) throw new CoException("Quit failed from group:" + name);
+        CoIns<String> ins = insFactory.newQuit(name, id()).from(this).to(g);
         return pub(ins);
     }
 
@@ -194,6 +223,7 @@ public class BasicCo implements Co {
         listeners.clear();
         codecs.clear();
         groups.clear();
+        conf.clear();
         LOG.info("Co-{} closed!", this);
     }
 

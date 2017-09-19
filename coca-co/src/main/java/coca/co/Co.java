@@ -36,7 +36,9 @@ public interface Co extends Closeable {
 
     String id();
 
-    Co init();
+    Co init(CoConf conf);
+
+    CoConf conf();
 
     boolean isClosed();
 

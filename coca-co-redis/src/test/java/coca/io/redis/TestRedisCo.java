@@ -3,6 +3,8 @@
  */
 package coca.io.redis;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -11,10 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import coca.co.BasicCo;
 import coca.co.Co;
+import coca.co.init.CoInit;
 import coca.co.ins.CoIns;
 import coca.co.ins.CoIns.Ins;
 import coca.co.ins.TextCoIns;
-import coca.co.io.BasicCoIO;
 import coca.co.redis.io.RedisChannelSelector;
 
 /**
@@ -26,12 +28,15 @@ public class TestRedisCo {
 
     static final Logger LOG = LoggerFactory.getLogger(TestRedisCo.class);
 
+    static Map<String, String> CoConf = new HashMap<String, String>();
+    static {
+        CoConf.put(CoInit.P_CO_IO_SELECTOR, RedisChannelSelector.class.getName());
+    }
+
     @Test
     public void testCo() throws Exception {
         // init
-        // System.setProperty(RMQGroupChannel.P_NAMESRC, "192.168.60.42:9876");// rmq namesrv
-        try (Co co1 = new BasicCo().io(new BasicCoIO().selector(new RedisChannelSelector())).init()) {
-
+        try (Co co1 = BasicCo.create(CoConf)) {
             // join
             co1.join("co_test");
 
