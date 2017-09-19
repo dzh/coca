@@ -37,12 +37,18 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
 
     private BlockingQueue<InsPacket> _queue;
 
+    public static final String P_CO_IO_SEL_QUEUE_SIZE = "co.io.sel.queue.size";
+
     @Override
     public ChannelSelector init(CoIO io) {
         super.init(io);
         channels = new ConcurrentHashMap<String, CoChannel>();
-        _queue = new LinkedBlockingQueue<InsPacket>(10000);// TODO
+        _queue = new LinkedBlockingQueue<InsPacket>(queueSize());
         return this;
+    }
+
+    private int queueSize() {
+        return io.co().conf().getInt(P_CO_IO_SEL_QUEUE_SIZE, "10000");
     }
 
     /**

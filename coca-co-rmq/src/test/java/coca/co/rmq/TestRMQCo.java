@@ -32,12 +32,15 @@ public class TestRMQCo {
     static Map<String, String> CoConf = new HashMap<String, String>();
     static {
         CoConf.put(CoInit.P_CO_IO_SELECTOR, RMQChannelSelector.class.getName());
+        CoConf.put(RMQGroupChannel.P_CO_RMQ_NAMESRV, "127.0.0.1:9876");
+        CoConf.put(RMQGroupChannel.P_CO_RMQ_TOPIC_KEY, "DefaultCluster");
+        CoConf.put(RMQGroupChannel.P_CO_RMQ_TOPIC_QUEUENUM, "8");
+
     }
 
     @Test
     public void testCo() throws Exception {
         // init
-        System.setProperty(RMQGroupChannel.P_NAMESRC, "192.168.60.42:9876");// rmq namesrv
         try (Co co1 = BasicCo.create(CoConf)) {
 
             // join

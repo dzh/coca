@@ -45,8 +45,9 @@ public class RMQGroupChannel extends GroupChannel {
     private DefaultMQPushConsumer consumer;
     private DefaultMQProducer producer;
 
-    @Deprecated
-    public static final String P_NAMESRC = "co.rmq.namesrv"; // TODO
+    public static final String P_CO_RMQ_NAMESRV = "co.rmq.namesrv";
+    public static final String P_CO_RMQ_TOPIC_KEY = "co.rmq.topic.key";
+    public static final String P_CO_RMQ_TOPIC_QUEUENUM = "co.rmq.topic.queuenum";
 
     private String namesrvAddr;
 
@@ -65,7 +66,7 @@ public class RMQGroupChannel extends GroupChannel {
     @Override
     public CoChannel init(ChannelSelector selector) throws CoChannelException {
         super.init(selector);
-        setNamesrvAddr(System.getProperty(P_NAMESRC)); // TODO
+        setNamesrvAddr(namesrv());
         try {
             startProducer();
             startConsumer();
@@ -76,6 +77,18 @@ public class RMQGroupChannel extends GroupChannel {
             } catch (IOException e1) {}
         }
         return this;
+    }
+
+    private String namesrv() {
+        return selector.io().co().conf().get(P_CO_RMQ_NAMESRV, "127.0.0.1:9876");
+    }
+
+    private String topicKey() {
+        return selector.io().co().conf().get(P_CO_RMQ_TOPIC_KEY, "DefaultCluster");
+    }
+
+    private int topicQueueNum() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_TOPIC_QUEUENUM, "8");
     }
 
     private String consumeTimestamp() {
@@ -140,13 +153,12 @@ public class RMQGroupChannel extends GroupChannel {
     }
 
     public void startProducer() throws Exception {
-        // TODO config
         producer = new DefaultMQProducer(name());
         producer.setNamesrvAddr(getNamesrvAddr());
         producer.setRetryTimesWhenSendFailed(3);
         producer.setVipChannelEnabled(false);
         producer.start();
-        producer.createTopic("DefaultCluster", name(), 8);
+        producer.createTopic(topicKey(), name(), topicQueueNum());
     }
 
     @Override

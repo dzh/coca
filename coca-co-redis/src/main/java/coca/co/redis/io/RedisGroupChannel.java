@@ -37,6 +37,8 @@ public class RedisGroupChannel extends GroupChannel {
 
     private RedissonClient redisson;
 
+    public static final String P_CO_REDIS_ADDR = "co.redis.addr";
+
     public RedisGroupChannel(String name) {
         super(name);
     }
@@ -92,10 +94,14 @@ public class RedisGroupChannel extends GroupChannel {
         if (!rq.offer(ins)) LOG.info("discard {}", ins);
     }
 
+    private String redisAddr() {
+        return this.selector.io().co().conf().get(P_CO_REDIS_ADDR, "redis://127.0.0.1:6379");
+    }
+
     protected Config newRedisConf(RedisGroupChannel ch) {
         Config config = new Config();
-        // single TODO
-        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        // single
+        config.useSingleServer().setAddress(redisAddr());
 
         // cluster
         // config.useClusterServers().setScanInterval(2000).addNodeAddress("127.0.0.1:7000", "127.0.0.1:7001");

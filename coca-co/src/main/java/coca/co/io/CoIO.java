@@ -13,6 +13,7 @@ import coca.co.CoFuture;
 import coca.co.ins.CoIns;
 import coca.co.ins.InsResult;
 import coca.co.ins.actor.CoActor;
+import coca.co.ins.codec.InsCodec;
 import coca.co.io.packet.InsPacket;
 
 /**
@@ -48,5 +49,9 @@ public interface CoIO extends Closeable {
     CoIO withActor(CoActor actor);
 
     CoActor removeActor(String name);
+    
+    CoIO withCodec(InsCodec codec);
+
+    InsCodec codec(String name);
 
 }

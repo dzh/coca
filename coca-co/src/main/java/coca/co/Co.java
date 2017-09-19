@@ -11,7 +11,6 @@ import coca.co.ins.CoIns;
 import coca.co.ins.CoInsFactory;
 import coca.co.ins.InsResult;
 import coca.co.ins.VoidCoIns;
-import coca.co.ins.codec.InsCodec;
 import coca.co.io.CoIO;
 
 /**
@@ -36,6 +35,12 @@ public interface Co extends Closeable {
 
     String id();
 
+    /**
+     * initialize Co with CoConf
+     * 
+     * @return
+     * @throws NullPointerException
+     */
     Co init(CoConf conf);
 
     CoConf conf();
@@ -110,10 +115,6 @@ public interface Co extends Closeable {
      * @throws CoException
      */
     CoIns<?> sub(long timeout, TimeUnit unit) throws CoException;
-
-    Co withCodec(InsCodec codec);
-
-    InsCodec codec(String name);
 
     Co insFactory(CoInsFactory insFactory);
 

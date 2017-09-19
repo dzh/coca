@@ -6,8 +6,10 @@ package coca.co.io;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +28,7 @@ import coca.co.ins.InsResult;
 import coca.co.ins.VoidCoIns;
 import coca.co.ins.actor.CoActor;
 import coca.co.ins.codec.InsCodec;
+import coca.co.ins.codec.TextInsCodec;
 import coca.co.io.channel.CoChannel;
 import coca.co.io.channel.CoChannelException;
 import coca.co.io.packet.BasicInsPacket;
@@ -36,21 +39,30 @@ import coca.co.io.packet.InsPacket;
  * @date Sep 10, 2017 12:32:06 PM
  * @since 0.0.1
  */
-public class BasicCoIO implements CoIO {
+public class BasicIO implements CoIO {
 
-    static final Logger LOG = LoggerFactory.getLogger(BasicCoIO.class);
+    static final Logger LOG = LoggerFactory.getLogger(BasicIO.class);
 
     private Co co;
 
     private ChannelSelector selector;
 
-    private List<CoActor> actors; // use Map
+    private List<CoActor> actors = Collections.synchronizedList(new LinkedList<CoActor>());
+
+    private Map<String, InsCodec> codecs = Collections.synchronizedMap(new HashMap<String, InsCodec>());;
+
+    private static final TextInsCodec TEXT_CODEC = new TextInsCodec();
 
     @Override
     public CoIO init(Co co) {
-        if (co == null) throw new NullPointerException("BasicCoIO.co is nil");
+        if (co == null) throw new NullPointerException("BasicIO.co is nil");
         this.co = co;
-        this.actors = Collections.synchronizedList(new LinkedList<CoActor>());
+
+        if (selector == null) throw new NullPointerException("BasicIO.selector is nil");
+        selector.init(this);
+
+        for (CoActor actor : actors)
+            actor.init(this);
         return this;
     }
 
@@ -98,7 +110,6 @@ public class BasicCoIO implements CoIO {
     @Override
     public CoIO selector(ChannelSelector selector) {
         this.selector = selector;
-        selector.init(this);// TODO
         return this;
     }
 
@@ -118,7 +129,7 @@ public class BasicCoIO implements CoIO {
         CoIns<Object> copy = (CoIns<Object>) co.insFactory().newIns(ins.ins());
         copy.from(ins.from());
         copy.codec(ins.codec());
-        if (ins.data() != null) copy.data(co.codec(ins.codec()).decode(ins.data().array()));
+        if (ins.data() != null) copy.data(codec(ins.codec()).decode(ins.data().array()));
         return copy;
     }
 
@@ -133,7 +144,7 @@ public class BasicCoIO implements CoIO {
         copy.to(ins.toCo().toArray(new Co[ins.toCo().size()]));
 
         if (ins.data() != null) {
-            InsCodec codec = co.codec(ins.codec());
+            InsCodec codec = codec(ins.codec());
             ins.codec(codec.name());
             copy.data(ByteBuffer.wrap(codec.encode(ins.data())));
         }
@@ -158,9 +169,7 @@ public class BasicCoIO implements CoIO {
 
     @Override
     public CoIO withActor(CoActor actor) {
-        if (actors.add(actor)) {
-            actor.init(this);
-        } else {
+        if (!actors.add(actor)) {
             LOG.error("withActor {} failed!", actor);
         }
         return this;
@@ -177,6 +186,18 @@ public class BasicCoIO implements CoIO {
             return op.get();
         }
         return null;
+    }
+
+    @Override
+    public CoIO withCodec(InsCodec codec) {
+        codecs.put(codec.name(), codec);
+        return this;
+    }
+
+    @Override
+    public InsCodec codec(String name) {
+        if (name == null) return TEXT_CODEC;
+        return codecs.getOrDefault(name, TEXT_CODEC);
     }
 
 }

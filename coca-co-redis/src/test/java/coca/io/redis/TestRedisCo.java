@@ -18,6 +18,7 @@ import coca.co.ins.CoIns;
 import coca.co.ins.CoIns.Ins;
 import coca.co.ins.TextCoIns;
 import coca.co.redis.io.RedisChannelSelector;
+import coca.co.redis.io.RedisGroupChannel;
 
 /**
  * @author dzh
@@ -31,6 +32,7 @@ public class TestRedisCo {
     static Map<String, String> CoConf = new HashMap<String, String>();
     static {
         CoConf.put(CoInit.P_CO_IO_SELECTOR, RedisChannelSelector.class.getName());
+        CoConf.put(RedisGroupChannel.P_CO_REDIS_ADDR, "redis://127.0.0.1:6379");
     }
 
     @Test
