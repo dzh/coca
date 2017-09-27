@@ -13,12 +13,12 @@
 			<dependency>
 				<groupId>com.yunpian</groupId>
 				<artifactId>coca-co</artifactId>
-				<version>${project.parent.version}</version>
+				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.yunpian</groupId>
 				<artifactId>coca-ca</artifactId>
-				<version>${project.parent.version}</version>
+				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -31,11 +31,8 @@ public class TestInsPacket {
 
     @Test
     public void testVersion() {
-        int v = 1;
-
         System.out.println(InsPacket.Type.GROUP.ordinal());
         System.out.println(InsPacket.Type.ACK.ordinal());
-
     }
 
 }

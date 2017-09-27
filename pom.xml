@@ -6,6 +6,17 @@
 	<packaging>pom</packaging>
 	<url>https://github.com/dzh/coca</url>
 
+	<groupId>dzh.github.io</groupId>
+	<name>coca</name>
+	<description>Co-Cache Framework</description>
+	<scm>
+		<url>git@github.com:dzh/coca.git</url>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/dzh/coca/issues</url>
+		<system>GitHub Issue Management</system>
+	</issueManagement>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
@@ -93,18 +104,9 @@
 		<module>coca-api</module>
 		<module>coca-co</module>
 		<module>coca-ca</module>
-		<module>coca-co-rmq</module>
-		
-		<module>coca-co-redis</module>
+		<module>coca-rmq</module>
+		<module>coca-redis</module>
+		<module>coca-ehcache</module>
 	</modules>
-	<name>coca</name>
-	<description>Co-Cache Framework</description>
-	<scm>
-		<url>git@github.com:dzh/coca.git</url>
-	</scm>
-	<issueManagement>
-		<url>https://github.com/dzh/coca/issues</url>
-		<system>GitHub Issue Management</system>
-	</issueManagement>
-	<groupId>dzh.github.io</groupId>
+
 </project>

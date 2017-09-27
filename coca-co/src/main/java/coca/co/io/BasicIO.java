@@ -79,7 +79,7 @@ public class BasicIO implements CoIO {
     @Override
     public CoFuture<InsResult> pub(CoIns<?> ins) throws CoException {
         if (ins == null) throw new CoException("ins is nil");
-        LOG.info("pub {}", ins.toString());
+        LOG.info("pub {}", ins);
 
         if (selector == null) throw new CoException("pub but selector is nil");
         CoChannel ch = selector.select(ins);
@@ -130,6 +130,7 @@ public class BasicIO implements CoIO {
         copy.from(ins.from());
         copy.codec(ins.codec());
         if (ins.data() != null) copy.data(codec(ins.codec()).decode(ins.data().array()));
+        LOG.info("sub {}", copy);
         return copy;
     }
 
