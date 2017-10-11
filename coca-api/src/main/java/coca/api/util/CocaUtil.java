@@ -17,6 +17,7 @@ public class CocaUtil {
      * 
      * @return
      */
+    @Deprecated
     public static final String genCocaId() {
         return "" + getPID() + "";
     }
