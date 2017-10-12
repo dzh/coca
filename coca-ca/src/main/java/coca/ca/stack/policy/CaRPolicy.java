@@ -9,7 +9,7 @@ import coca.ca.stack.pointer.CaPointer;
  * @author dzh
  * @date Nov 14, 2016 12:35:37 PM
  */
-interface CaRPolicy {
+interface CaRPolicy<K, V> {
 
     /**
      * reverse to write cache
@@ -25,7 +25,7 @@ interface CaRPolicy {
      * @param key
      * @return read pointer
      */
-    CaPointer rp(String key);
+    CaPointer<K, V> rp(K key);
 
     /**
      * 

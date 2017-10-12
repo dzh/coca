@@ -10,7 +10,7 @@ import coca.ca.stack.pointer.CaPointer;
  * @author dzh
  * @date Nov 14, 2016 12:36:00 PM
  */
-interface CaWPolicy {
+interface CaWPolicy<K, V> {
 
     /**
      * All cache that wp pointed to be written
@@ -26,7 +26,7 @@ interface CaWPolicy {
         return true;
     }
 
-    CaPointer wp(CaValue<?> val);
+    CaPointer<K, V> wp(CaValue<K, V> val);
 
     long wop(long op);
 

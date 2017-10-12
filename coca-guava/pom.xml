@@ -6,10 +6,18 @@
 		<artifactId>coca-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>coca-ca</artifactId>
+	<artifactId>coca-guava</artifactId>
 
 	<dependencies>
-		<!-- <dependency> <groupId>javax.cache</groupId> <artifactId>cache-api</artifactId> 
-			<version>1.0.0</version> </dependency> -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>23.1-jre</version>
+		</dependency>
+		<dependency>
+			<groupId>dzh.github.io</groupId>
+			<artifactId>coca-ca</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>

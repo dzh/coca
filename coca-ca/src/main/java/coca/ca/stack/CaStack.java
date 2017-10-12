@@ -14,7 +14,7 @@ import coca.ca.stack.policy.CaPolicy;
  * @date Sep 29, 2017 12:40:44 PM
  * @since 0.0.1
  */
-public interface CaStack {
+public interface CaStack<K, V> {
 
     String name();
 
@@ -23,13 +23,13 @@ public interface CaStack {
      * @param ca
      * @return true if push successfully
      */
-    boolean push(Ca<?> ca);
+    boolean push(Ca<K, V> ca);
 
     /**
      * 
      * @return stack top's ca or null if stack is empty
      */
-    Ca<?> pop();
+    Ca<K, V> pop();
 
     /**
      * 
@@ -44,13 +44,13 @@ public interface CaStack {
      * @param index
      * @return Ca at index location of stack
      */
-    Ca<?> cache(int index);
+    Ca<K, V> cache(int index);
 
-    CaStack withPolicy(CaPolicy p);
+    CaStack<K, V> withPolicy(CaPolicy<K, V> p);
 
-    <T> CaValue<T> read(String key);
+    CaValue<K, V> read(K key);
 
-    <T> CaStack write(CaValue<T> val);
+    CaStack<K, V> write(CaValue<K, V> val);
 
     void close();
 }

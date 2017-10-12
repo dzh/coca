@@ -3,7 +3,6 @@
  */
 package coca.ca;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 /**
@@ -11,38 +10,26 @@ import java.io.IOException;
  * @date Sep 29, 2017 3:37:23 PM
  * @since 0.0.1
  */
-public class BasicCa<C extends Closeable> implements Ca<C> {
+public abstract class BasicCa<K, V> implements Ca<K, V> {
 
     private String name;
-
-    private C cache;
 
     private volatile boolean closed = false;
     private CaType type;
 
-    public BasicCa(String name, C ca, CaType type) {
+    public BasicCa(String name, CaType type) {
         this.name = name;
-        this.cache = ca;
         this.type = type;
     }
 
     @Override
     public void close() throws IOException {
-        try {
-            cache.close();
-        } finally {
-            closed = true;
-        }
+        closed = true;
     }
 
     @Override
     public String name() {
         return this.name;
-    }
-
-    @Override
-    public C ca() {
-        return cache;
     }
 
     @Override
@@ -52,21 +39,25 @@ public class BasicCa<C extends Closeable> implements Ca<C> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj != null && obj instanceof Ca) { return ((Ca<?>) obj).name().equals(this.name); }
+        if (obj != null && obj instanceof Ca) { return ((Ca<?, ?>) obj).name().equals(this.name); }
         return false;
     }
 
     @Override
-    public <T> CaValue<T> read(String key) {
+    public CaValue<K, V> read(K key) {
         if (isClosed()) throw new CaException(name + " has been closed! ");
-        return null;
+        return doRead(key);
     }
 
+    protected abstract CaValue<K, V> doRead(K key);
+
     @Override
-    public <T> boolean write(CaValue<T> val) {
+    public boolean write(CaValue<K, V> val) {
         if (isClosed()) throw new CaException(name + " has been closed!");
-        return false;
+        return doWrite(val);
     }
+
+    protected abstract boolean doWrite(CaValue<K, V> val);
 
     @Override
     public CaType type() {

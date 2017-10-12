@@ -11,23 +11,19 @@ import java.io.Closeable;
  * @date Nov 14, 2016 12:46:26 PM
  * @since 0.0.1
  */
-public interface Ca<C> extends Closeable {
+public interface Ca<K, V> extends Closeable {
 
     String name();
 
-    /**
-     * @return cache instance
-     */
-    C ca();
-
-    <T> CaValue<T> read(String key);
+    CaValue<K, V> read(K key);
+    
 
     /**
      * 
      * @param val
      * @return true if written successfully, otherwise to return false
      */
-    <T> boolean write(CaValue<T> val);
+    boolean write(CaValue<K, V> val);
 
     boolean isClosed();
 

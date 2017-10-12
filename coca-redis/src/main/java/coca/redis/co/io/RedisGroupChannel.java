@@ -89,7 +89,7 @@ public class RedisGroupChannel extends GroupChannel {
         int v = packet.getShort();
         packet.rewind();
         InsPacket ins = codec(v).decode(packet);
-        LOG.info("Receive from channel:{}, read packet {}", channel, ins);
+        LOG.info("Recv from channel:{}, read packet {}", channel, ins);
         // TODO miss packet
         if (!rq.offer(ins)) LOG.info("discard {}", ins);
     }

@@ -28,9 +28,7 @@ import coca.co.util.IDUtil;
  * <pre>
  * For Example:
  * {@code
- *      Co co = new BasicCo().init(); // create Co
- *      co.io(new BasicCoIO()); // add CoIO
- *      co.insFactory(new CoInsFactory()); // add ins factory
+ *      Co co = BasicCo.newCo(Map); // create Co
  *      CoIns ins = co.insFactory.newIns(InsConst.JOIN);  // create CoIns
  *      ins.from(co).toGroup(group("name")).data("name id"); // fill ins's data
  *      co.pub(ins); // publish ins
@@ -67,7 +65,7 @@ public class BasicCo implements Co {
         this.id = id;
     }
 
-    public static final Co create(Map<String, String> conf) {
+    public static final Co newCo(Map<String, String> conf) {
         MapInit init = null;
         if (conf.containsKey(CoInit.P_CO_INIT)) {
             try {

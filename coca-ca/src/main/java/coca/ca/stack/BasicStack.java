@@ -20,13 +20,13 @@ import coca.ca.stack.policy.CaPolicy;
  * @date Sep 29, 2017 3:48:26 PM
  * @since 0.0.1
  */
-public class BasicStack implements CaStack {
+public class BasicStack<K, V> implements CaStack<K, V> {
 
     static Logger LOG = LoggerFactory.getLogger(BasicStack.class);
 
-    private Stack<Ca<?>> stack = new Stack<>();
+    private Stack<Ca<K, V>> stack = new Stack<>();
 
-    private CaPolicy policy;
+    private CaPolicy<K, V> policy;
 
     private String name;
 
@@ -39,7 +39,7 @@ public class BasicStack implements CaStack {
      * @see coca.ca.CaStack#push(coca.ca.Ca)
      */
     @Override
-    public boolean push(Ca<?> ca) {
+    public boolean push(Ca<K, V> ca) {
         stack.push(ca);
         return true;
     }
@@ -49,7 +49,7 @@ public class BasicStack implements CaStack {
      * @see coca.ca.CaStack#pop()
      */
     @Override
-    public Ca<?> pop() {
+    public Ca<K, V> pop() {
         return stack.pop();
     }
 
@@ -58,19 +58,19 @@ public class BasicStack implements CaStack {
      * @see coca.ca.CaStack#read(java.lang.String)
      */
     @Override
-    public <T> CaValue<T> read(String key) {
+    public CaValue<K, V> read(K key) {
         if (!policy.isReadable()) { throw new CaException(name + " is not readable for key:" + key); }
 
         if (stack.isEmpty()) return null;
 
-        CaValue<T> val = null;
-        CaPointer rp = policy.rp(key);
+        CaValue<K, V> val = null;
+        CaPointer<K, V> rp = policy.rp(key);
         while (rp.hasNext()) {
             val = rp.next().read(key);
             if (val != null) break;
         }
         // TODO async
-        Optional.<CaValue<T>> ofNullable(val).ifPresent(v -> {
+        Optional.<CaValue<K, V>> ofNullable(val).ifPresent(v -> {
             if ((policy.rop() & CaPolicy.ROP_BACK_WRITE) > 0) {
                 writeInner(rp.reverse(), v);
             }
@@ -78,9 +78,9 @@ public class BasicStack implements CaStack {
         return val;
     }
 
-    protected CaStack writeInner(CaPointer wp, CaValue<?> val) {
+    protected CaStack<K, V> writeInner(CaPointer<K, V> wp, CaValue<K, V> val) {
         while (wp.hasNext()) {
-            Ca<?> ca = wp.next();
+            Ca<K, V> ca = wp.next();
             if (ca.write(val)) {
                 if (!hasWop(CaPolicy.WOP_ALL_WRITE)) break;
             } else {
@@ -96,10 +96,10 @@ public class BasicStack implements CaStack {
      * @see coca.ca.CaStack#write(coca.ca.CaValue)
      */
     @Override
-    public <T> CaStack write(CaValue<T> val) {
+    public CaStack<K, V> write(CaValue<K, V> val) {
         if (!policy.isWritable()) { throw new CaException(name + " is not writable for key:" + val); }
 
-        CaPointer wp = policy.wp(val);
+        CaPointer<K, V> wp = policy.wp(val);
         return writeInner(wp, val);
     }
 
@@ -112,7 +112,7 @@ public class BasicStack implements CaStack {
     }
 
     @Override
-    public CaStack withPolicy(CaPolicy p) {
+    public CaStack<K, V> withPolicy(CaPolicy<K, V> p) {
         this.policy = p;
         p.stack(this);
         return this;
@@ -134,7 +134,7 @@ public class BasicStack implements CaStack {
     }
 
     @Override
-    public Ca<?> cache(int index) {
+    public Ca<K, V> cache(int index) {
         int size = size() - 1;
         if (index < 0 || index > size) return null;
 

@@ -9,45 +9,53 @@ import coca.ca.stack.CaStack;
  * @date Oct 11, 2017 4:07:30 PM
  * @since 0.0.1
  */
-public class StackPointer implements CaPointer {
+public class StackPointer<K, V> implements CaPointer<K, V> {
 
-    private CaStack stack;
+    private CaStack<K, V> stack;
 
-    protected boolean up = false;
+    protected boolean down = true;
 
     private int index = 0;
 
-    public StackPointer(CaStack stack) {
+    public StackPointer(CaStack<K, V> stack) {
         this(stack, 0, false);
     }
 
-    public StackPointer(CaStack stack, int index, boolean up) {
+    public StackPointer(CaStack<K, V> stack, int index, boolean down) {
         if (stack == null) throw new NullPointerException("stack is null");
 
         this.stack = stack;
         this.index = index;
-        this.up = up;
+        this.down = down;
+    }
+
+    public static final <K, V> StackPointer<K, V> newReadPointer(CaStack<K, V> stack, int index) {
+        return new StackPointer<K, V>(stack, index, true);
+    }
+
+    public static final <K, V> StackPointer<K, V> newWritePointer(CaStack<K, V> stack, int index) {
+        return new StackPointer<K, V>(stack, stack.size() - 1, false);
     }
 
     @Override
-    public CaStack stack() {
+    public CaStack<K, V> stack() {
         return stack;
     }
 
     @Override
     public boolean hasNext() {
-        return up ? index > -1 : index < stack().size();
+        return down ? index < stack().size() : index > -1;
     }
 
     @Override
-    public Ca<?> next() {
-        return stack().cache(up ? index-- : index++);
+    public Ca<K, V> next() {
+        return stack().cache(down ? index++ : index--);
     }
 
     @Override
-    public CaPointer reverse() {
-        index = up ? index + 1 : index - 1;
-        up = up ? false : true;
+    public CaPointer<K, V> reverse() {
+        index = down ? index - 1 : index + 1;
+        down = down ? false : true;
         return this;
     }
 
@@ -57,7 +65,7 @@ public class StackPointer implements CaPointer {
     }
 
     @Override
-    public CaPointer index(int index) {
+    public CaPointer<K, V> index(int index) {
         this.index = index;
         return this;
     }

@@ -36,7 +36,7 @@ public class TestRedisCo {
     @Test
     public void testCo() throws Exception {
         // init
-        try (Co co1 = BasicCo.create(CoConf)) {
+        try (Co co1 = BasicCo.newCo(CoConf)) {
             // join
             co1.join("co_test");
 

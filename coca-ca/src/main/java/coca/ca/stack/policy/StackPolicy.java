@@ -13,9 +13,9 @@ import coca.ca.stack.pointer.StackPointer;
  * @date Sep 29, 2017 5:54:05 PM
  * @since 0.0.1
  */
-public class StackPolicy implements CaPolicy {
+public class StackPolicy<K, V> implements CaPolicy<K, V> {
 
-    private CaStack stack;
+    private CaStack<K, V> stack;
 
     private long rop = CaRPolicy.ROP_BACK_WRITE;
 
@@ -24,18 +24,18 @@ public class StackPolicy implements CaPolicy {
     public StackPolicy() {}
 
     @Override
-    public CaStack stack() {
+    public CaStack<K, V> stack() {
         return stack;
     }
 
     @Override
-    public void stack(CaStack s) {
+    public void stack(CaStack<K, V> s) {
         this.stack = s;
     }
 
     @Override
-    public CaPointer rp(String key) {
-        return new StackPointer(stack, 0, false);
+    public CaPointer<K, V> rp(K key) {
+        return StackPointer.newReadPointer(stack, 0);
     }
 
     @Override
@@ -45,8 +45,8 @@ public class StackPolicy implements CaPolicy {
     }
 
     @Override
-    public CaPointer wp(CaValue<?> val) {
-        return new StackPointer(stack, stack.size() - 1, true);
+    public CaPointer<K, V> wp(CaValue<K, V> val) {
+        return StackPointer.newWritePointer(stack, 0);
     }
 
     @Override

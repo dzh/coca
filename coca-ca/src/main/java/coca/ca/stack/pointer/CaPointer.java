@@ -11,21 +11,21 @@ import coca.ca.stack.CaStack;
  * @date Sep 29, 2017 6:35:45 PM
  * @since 0.0.1
  */
-public interface CaPointer {
+public interface CaPointer<K, V> {
 
     boolean hasNext();
 
-    Ca<?> next();
+    Ca<K, V> next();
 
-    CaStack stack();
+    CaStack<K, V> stack();
 
     int index();
 
-    CaPointer index(int index);
+    CaPointer<K, V> index(int index);
 
     /**
      * 
      */
-    CaPointer reverse();
+    CaPointer<K, V> reverse();
 
 }

@@ -8,7 +8,7 @@ import java.lang.management.ManagementFactory;
 /**
  * @author dzh
  * @date Nov 14, 2016 2:33:29 PM
- * @since 1.0
+ * @since 0.0.1
  */
 public class CocaUtil {
 
