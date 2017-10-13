@@ -14,7 +14,7 @@ import coca.co.ins.CoInsFactory;
  * @date Oct 13, 2017 11:12:56 AM
  * @since 0.0.1
  */
-public class CocaInsfactory extends CoInsFactory {
+public class CocaInsFactory extends CoInsFactory {
 
     protected CoIns<?> customIns(Ins ins) {
         if (CocaConst.EVICT.equals(ins)) { return new StackCoIns(ins); }

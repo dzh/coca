@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import coca.api.co.CocaInsfactory;
+import coca.api.co.CocaInsFactory;
 import coca.ca.BasicCa;
 import coca.ca.Ca;
 import coca.ca.CaValue;
@@ -36,7 +36,7 @@ public class TestCoca {
     @Before
     public void initCoca() {
         Map<String, String> conf = new HashMap<>();
-        conf.put(CocaConst.P_CO_INS_FACTORY, CocaInsfactory.class.getName());
+        conf.put(CocaConst.P_CO_INS_FACTORY, CocaInsFactory.class.getName());
 
         coca = Coca.newCoca(conf);
     }

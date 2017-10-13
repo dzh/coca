@@ -60,7 +60,7 @@ public class Coca implements Closeable {
         // create Co
         co = initCo(conf);
         if (co.isClosed()) throw new IllegalStateException("Co init failed!");
-        startSubThread(co); // TODO CoActor is more convenient
+        startSubThread(co); // TODO CoActor is more convenient maybe
     }
 
     protected void startSubThread(final Co co) {
@@ -86,7 +86,7 @@ public class Coca implements Closeable {
             LOG.error(e.getMessage(), e);
         });
         subT.start();
-        LOG.info("{} tart!", subT.getName());
+        LOG.info("{} start!", subT.getName());
     }
 
     public InsHandler<?> customHandler(CoIns<?> coIns) {

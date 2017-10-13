@@ -2,10 +2,6 @@ coca
 ===================================
 Co-Cache 缓存的协同框架
 
-## 运行要求
-- Jdk8
-
-## 工程说明
 
 ## 快速开始
 - 示例说明
@@ -17,28 +13,30 @@ Co-Cache 缓存的协同框架
 ```xml
 <dependency>
     <groupId>dzh.github.io</groupId>
-    <artifactId>coca-example</artifactId>
-    <version>1.0.0</version>
+    <artifactId>coca-api</artifactId>
 </dependency>
 <dependency>
     <groupId>dzh.github.io</groupId>
     <artifactId>coca-redis</artifactId>
-    <version>1.0.0</version>
 </dependency>
 <dependency>
     <groupId>dzh.github.io</groupId>
-    <artifactId>coca-ehcache</artifactId>
+    <artifactId>coca-guava</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 
-## 源码贡献
-- master稳定分支,develop开发分支。请Pull Request到develop
-- 代码格式化文件[eclipse_format](doc/eclipse_format.xml)
-- 注释模版文件[eclipse_template](doc/eclipse_template.xml)
-    
-## 文档链接
+## 运行要求
+- (0.0.1, 1.0.0)
+    - jdk7 or higher 
+- [1.0.0, 2.0.0)
+    - jdk8
+- [2.0.0, +∞)
+    - jdk9
 
+
+## 文档链接
+- [源码说明](doc/coca_project.md)
 
 
 
