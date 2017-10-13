@@ -59,6 +59,7 @@ public abstract class GroupChannel implements CoChannel {
         wt.start();
 
         open = true;
+        LOG.info("{} init", getClass().getName());
         return this;
     }
 
@@ -146,6 +147,10 @@ public abstract class GroupChannel implements CoChannel {
     }
 
     protected abstract void writeImpl(PacketFuture pf) throws Exception;
+
+    protected boolean receive(InsPacket ins) {
+        return rq.offer(ins);
+    }
 
     protected boolean isValidPacket(InsPacket packet) {
         // TODO

@@ -91,7 +91,7 @@ public class RedisGroupChannel extends GroupChannel {
         InsPacket ins = codec(v).decode(packet);
         LOG.info("Recv from channel:{}, read packet {}", channel, ins);
         // TODO miss packet
-        if (!rq.offer(ins)) LOG.info("discard {}", ins);
+        if (!receive(ins)) LOG.info("discard {}", ins);
     }
 
     private String redisAddr() {

@@ -7,9 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coca.co.Co;
 import coca.co.CoGroup;
 import coca.co.ins.CoIns;
@@ -21,8 +18,6 @@ import coca.co.ins.InsConst;
  * @since 0.0.1
  */
 public class JoinActor extends BasicActor {
-
-    static final Logger LOG = LoggerFactory.getLogger(JoinActor.class);
 
     // TODO
     private ExecutorService ES = Executors.newSingleThreadExecutor();
@@ -72,7 +67,6 @@ public class JoinActor extends BasicActor {
         } catch (InterruptedException e) {
             LOG.warn(e.getMessage(), e);
         }
-        LOG.info("{} closed.", name());
     }
 
 }

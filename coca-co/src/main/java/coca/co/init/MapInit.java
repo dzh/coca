@@ -5,6 +5,9 @@ package coca.co.init;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import coca.co.Co;
 import coca.co.CoConf;
 import coca.co.ins.CoInsFactory;
@@ -16,6 +19,8 @@ import coca.co.io.CoIO;
  * @since 0.0.1
  */
 public class MapInit implements CoInit<Map<String, String>> {
+
+    static Logger LOG = LoggerFactory.getLogger(MapInit.class);
 
     /*
      * (non-Javadoc)

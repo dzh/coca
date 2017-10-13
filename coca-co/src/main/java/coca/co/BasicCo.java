@@ -43,7 +43,7 @@ public class BasicCo implements Co {
 
     static final Logger LOG = LoggerFactory.getLogger(BasicCo.class);
 
-    protected Map<String, CoListener> listeners;
+    protected Map<String, CoListener> listeners; // TODO unused
 
     private String id;
 
@@ -191,22 +191,25 @@ public class BasicCo implements Co {
 
     @Override
     public void close() throws IOException {
-        // quit group //TODO abnormal exit how to quit
-        for (CoGroup g : groups.values()) {
-            if (g.contain(this)) try {
-                quit(g.name());
-            } catch (CoException e) {
-                LOG.error(e.getMessage(), e);
+        if (closed) return;
+        try {
+            // quit group //TODO abnormal exit how to quit
+            for (CoGroup g : groups.values()) {
+                if (g.contain(this)) try {
+                    quit(g.name());
+                } catch (CoException e) {
+                    LOG.error(e.getMessage(), e);
+                }
             }
+        } finally {
+            closed = true; // indicate that co closed
+            closeIO();
+            if (insFactory != null) insFactory.close();
+
+            listeners.clear();
+            groups.clear();
+            conf.clear();
         }
-
-        closed = true; // indicate that co closed
-        closeIO();
-        if (insFactory != null) insFactory.close();
-
-        listeners.clear();
-        groups.clear();
-        conf.clear();
         LOG.info("Co-{} closed!", this);
     }
 

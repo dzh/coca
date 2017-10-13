@@ -46,11 +46,17 @@ public interface CaStack<K, V> {
      */
     Ca<K, V> cache(int index);
 
+    Ca<K, V> cache(String name);
+
     CaStack<K, V> withPolicy(CaPolicy<K, V> p);
 
     CaValue<K, V> read(K key);
 
     CaStack<K, V> write(CaValue<K, V> val);
+
+    void addListener(StackListener l);
+
+    void removeListener(StackListener l);
 
     void close();
 }

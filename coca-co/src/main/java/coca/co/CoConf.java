@@ -15,6 +15,7 @@ import coca.co.ins.codec.TextInsCodec;
 import coca.co.io.BasicIO;
 import coca.co.io.ChannelSelector;
 import coca.co.io.CoIO;
+import coca.co.io.LocalChannelSelector;
 import coca.co.util.IDUtil;
 
 /**
@@ -84,7 +85,7 @@ public class CoConf implements CoConst {
     }
 
     public ChannelSelector newSelector() throws Exception {
-        Class<?> clazz = getClass().getClassLoader().loadClass(conf.get(P_CO_IO_SELECTOR));
+        Class<?> clazz = getClass().getClassLoader().loadClass(conf.getOrDefault(P_CO_IO_SELECTOR, LocalChannelSelector.class.getName()));
         return (ChannelSelector) clazz.newInstance();
     }
 

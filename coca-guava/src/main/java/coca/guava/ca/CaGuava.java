@@ -38,7 +38,7 @@ public class CaGuava<K, V> extends BasicCa<K, V> {
     @Override
     protected CaValue<K, V> doRead(K key) {
         V val = ca.getIfPresent(key);
-        return CaValue.newValue(key, val);
+        return CaValue.newVal(key, val);
     }
 
     @Override

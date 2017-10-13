@@ -17,6 +17,10 @@ public abstract class BasicCa<K, V> implements Ca<K, V> {
     private volatile boolean closed = false;
     private CaType type;
 
+    public BasicCa(String name) {
+        this(name, CaType.Local);
+    }
+
     public BasicCa(String name, CaType type) {
         this.name = name;
         this.type = type;

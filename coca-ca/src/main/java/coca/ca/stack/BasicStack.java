@@ -3,15 +3,19 @@
  */
 package coca.ca.stack;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coca.ca.Ca;
+import coca.ca.Ca.CaType;
 import coca.ca.CaException;
 import coca.ca.CaValue;
+import coca.ca.VoidCa;
 import coca.ca.stack.pointer.CaPointer;
 import coca.ca.stack.policy.CaPolicy;
 
@@ -82,13 +86,21 @@ public class BasicStack<K, V> implements CaStack<K, V> {
         while (wp.hasNext()) {
             Ca<K, V> ca = wp.next();
             if (ca.write(val)) {
-                if (!hasWop(CaPolicy.WOP_ALL_WRITE)) break;
+                // TODO fire before local write
+                if (ca.type() == CaType.Local) fireStackChange(StackEvent.newEvent(this, ca, val));
+                if (!enableWop(CaPolicy.WOP_ALL_WRITE)) break;
             } else {
                 LOG.error("{} write {} failed!", ca, val); // TODO to handle
-                if (hasWop(CaPolicy.WOP_ABORT_ON_FAIL)) break;
+                if (enableWop(CaPolicy.WOP_ABORT_ON_FAIL)) break;
             }
         }
         return this;
+    }
+
+    protected void fireStackChange(StackEvent evt) {
+        for (StackListener l : listeners) {
+            l.stackChange(evt);
+        }
     }
 
     /*
@@ -103,11 +115,11 @@ public class BasicStack<K, V> implements CaStack<K, V> {
         return writeInner(wp, val);
     }
 
-    protected boolean hasWop(long op) {
+    protected boolean enableWop(long op) {
         return (policy.wop() & op) > 0;
     }
 
-    protected boolean hasRop(long op) {
+    protected boolean enableRop(long op) {
         return (policy.rop() & op) > 0;
     }
 
@@ -135,10 +147,29 @@ public class BasicStack<K, V> implements CaStack<K, V> {
 
     @Override
     public Ca<K, V> cache(int index) {
-        int size = size() - 1;
-        if (index < 0 || index > size) return null;
+        int size = size();
+        if (index < 0 || index >= size) return null;
 
         return stack.elementAt(size - 1 - index);
+    }
+
+    private List<StackListener> listeners = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void addListener(StackListener l) {
+        listeners.add(l);
+    }
+
+    @Override
+    public void removeListener(StackListener l) {
+        listeners.remove(l);
+    }
+
+    @Override
+    public Ca<K, V> cache(String name) {
+        int idx = stack.lastIndexOf(new VoidCa<K, V>(name));
+        if (idx < 0) return null;
+        return stack.get(idx);
     }
 
 }

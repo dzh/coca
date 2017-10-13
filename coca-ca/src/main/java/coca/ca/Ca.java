@@ -16,7 +16,6 @@ public interface Ca<K, V> extends Closeable {
     String name();
 
     CaValue<K, V> read(K key);
-    
 
     /**
      * 

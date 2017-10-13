@@ -13,8 +13,7 @@ import coca.co.ins.CoIns.Ins;
  * @since 0.0.1
  */
 public interface InsConst {
-    /****************************** Ins Definition ******************************/
-    // [0,1024]
+    /************************** Ins Definition[0,1024] ************************/
     Ins VOID = new Ins(0, "void", "");
 
     /**

@@ -118,7 +118,7 @@ public class RMQGroupChannel extends GroupChannel {
                         InsPacket ins = RMQGroupChannel.this.codec(v).decode(packet);
                         LOG.info("read packet {}", ins);
                         // TODO miss packet
-                        if (!RMQGroupChannel.this.rq.offer(ins)) LOG.info("discard {}", ins);
+                        if (!receive(ins)) LOG.info("discard {}", ins);
                     } catch (Exception e) {
                         LOG.info(e.getMessage(), e);// TODO miss
                     }

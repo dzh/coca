@@ -29,7 +29,7 @@ public class CaRedis<K, V> extends BasicCa<K, V> {
     @Override
     protected CaValue<K, V> doRead(K key) {
         RBucket<V> bucket = redis.getBucket(key.toString());
-        return CaValue.newValue(key, bucket.get());
+        return CaValue.newVal(key, bucket.get());
     }
 
     @Override

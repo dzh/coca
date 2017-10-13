@@ -29,7 +29,7 @@ public class CaValue<K, V> {
         this.value = v;
     }
 
-    public static final <K, V> CaValue<K, V> newValue(K k, V v) {
+    public static final <K, V> CaValue<K, V> newVal(K k, V v) {
         return new CaValue<K, V>(k, v);
     }
 

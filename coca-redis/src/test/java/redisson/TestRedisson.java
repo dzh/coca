@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.redisson.Redisson;
 import org.redisson.api.RBucket;
@@ -44,7 +43,6 @@ public class TestRedisson {
     }
 
     @Test
-    @Ignore
     public void testBucket() throws Exception {
         RBucket<String> bucket = redis.getBucket("str", new StringCodec("utf-8"));
         bucket.set("x", 6, TimeUnit.SECONDS);
@@ -54,14 +52,19 @@ public class TestRedisson {
         Thread.sleep(2000);
         LOG.info("get {} after {}s", bucket.get(), 6);
         bucket.delete();
+
+        RBucket<TestClazz> bucket1 = redis.getBucket("clazz");
+        bucket1.set(new TestClazz("c", 3));
+        LOG.info("get {}", bucket1.get());
+        bucket1.delete();
     }
 
     @Test
     public void testList() throws Exception {
-        RList<ListClazz> list = redis.getList("list");
-        list.add(new ListClazz("a", 1));
+        RList<TestClazz> list = redis.getList("list");
+        list.add(new TestClazz("a", 1));
         LOG.info("get {}", list.get(0));
-        list.add(new ListClazz("b", 2));
+        list.add(new TestClazz("b", 2));
         // LOG.info("get {}", list.get(0, 1));
         LOG.info("get {}", redis.getList("list"));
 
@@ -69,13 +72,13 @@ public class TestRedisson {
         list.delete();
     }
 
-    static class ListClazz {
+    static class TestClazz {
         public String a;
         public int b;
 
-        public ListClazz() {}
+        public TestClazz() {}
 
-        public ListClazz(String a, int b) {
+        public TestClazz(String a, int b) {
             this.a = a;
             this.b = b;
         }

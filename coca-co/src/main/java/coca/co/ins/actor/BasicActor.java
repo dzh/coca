@@ -3,6 +3,9 @@
  */
 package coca.co.ins.actor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import coca.co.io.CoIO;
 
 /**
@@ -12,6 +15,8 @@ import coca.co.io.CoIO;
  */
 public abstract class BasicActor implements CoActor {
 
+    protected static Logger LOG = LoggerFactory.getLogger(BasicActor.class);
+
     protected CoIO io;
 
     protected volatile boolean open;
@@ -20,6 +25,7 @@ public abstract class BasicActor implements CoActor {
     public CoActor init(CoIO io) {
         this.io = io;
         open = true;
+        LOG.info("{} init", name());
         return this;
     }
 
@@ -39,6 +45,7 @@ public abstract class BasicActor implements CoActor {
     @Override
     public void close() {
         open = false;
+        LOG.info("{} closed", name());
     }
 
 }

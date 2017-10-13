@@ -63,6 +63,8 @@ public class BasicIO implements CoIO {
 
         for (CoActor actor : actors)
             actor.init(this);
+
+        LOG.info("{} init", getClass().getName());
         return this;
     }
 
@@ -127,6 +129,8 @@ public class BasicIO implements CoIO {
         Objects.requireNonNull(ins);
         @SuppressWarnings("unchecked")
         CoIns<Object> copy = (CoIns<Object>) co.insFactory().newIns(ins.ins());
+        copy.id(ins.id());
+        copy.cntl(ins.cntl());
         copy.from(ins.from());
         copy.codec(ins.codec());
         if (ins.data() != null) copy.data(codec(ins.codec()).decode(ins.data().array()));

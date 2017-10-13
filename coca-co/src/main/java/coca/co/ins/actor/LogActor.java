@@ -47,7 +47,6 @@ public class LogActor extends BasicActor {
     @Override
     public void close() {
         super.close();
-        LOG.info("{} closed.", name());
     }
 
 }

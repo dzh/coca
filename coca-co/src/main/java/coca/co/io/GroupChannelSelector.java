@@ -44,6 +44,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
         super.init(io);
         channels = new ConcurrentHashMap<String, CoChannel>();
         _queue = new LinkedBlockingQueue<InsPacket>(queueSize());
+        LOG.info("{} init", getClass().getName());
         return this;
     }
 

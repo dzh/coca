@@ -34,7 +34,8 @@ Co-Cache 缓存的协同框架
 
 ## 源码贡献
 - master稳定分支,develop开发分支。请Pull Request到develop
-- 代码格式化文件[eclipse_coca](doc/eclipse_coca.xml)
+- 代码格式化文件[eclipse_format](doc/eclipse_format.xml)
+- 注释模版文件[eclipse_template](doc/eclipse_template.xml)
     
 ## 文档链接
 

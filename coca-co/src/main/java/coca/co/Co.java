@@ -114,7 +114,7 @@ public interface Co extends Closeable {
      * @return CoIns or {@link VoidCoIns#VOID} if timeout
      * @throws CoException
      */
-    CoIns<?> sub(long timeout, TimeUnit unit) throws CoException;
+    CoIns<?> sub(long timeout, TimeUnit unit) throws CoException, InterruptedException;
 
     Co insFactory(CoInsFactory insFactory);
 

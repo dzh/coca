@@ -48,7 +48,6 @@ public class QuitActor extends BasicActor {
         } catch (InterruptedException e) {
             LOG.warn(e.getMessage(), e);
         }
-        LOG.info("{} closed.", name());
     }
 
     @Override
