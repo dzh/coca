@@ -24,8 +24,6 @@ public class PacketFuture extends BasicFuture<PacketResult> {
         return (send.cntl() & InsPacket.CNTL_ACK) == InsPacket.CNTL_ACK;
     }
 
-    private PacketResult result;
-
     public PacketFuture(InsPacket send) {
         this.send = send;
     }
@@ -36,7 +34,7 @@ public class PacketFuture extends BasicFuture<PacketResult> {
 
     @Override
     public boolean isDone() {
-        if (!super.isDone()) return false;
+        if (super.isDone()) return true;
         boolean done = false;
         if (result != null) {
             if (hasAck()) {

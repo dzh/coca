@@ -26,6 +26,8 @@ public class StackEvent extends EventObject {
 
     public StackEvent(CaStack<?, ?> stack, Ca<?, ?> ca, CaValue<?, ?> val) {
         super(stack);
+        this.ca = ca;
+        this.val = val;
     }
 
     public static final StackEvent newEvent(CaStack<?, ?> stack, Ca<?, ?> ca, CaValue<?, ?> val) {

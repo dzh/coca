@@ -196,8 +196,8 @@ public class BasicCo implements Co {
             // quit group //TODO abnormal exit how to quit
             for (CoGroup g : groups.values()) {
                 if (g.contain(this)) try {
-                    quit(g.name());
-                } catch (CoException e) {
+                    quit(g.name()).get();
+                } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                 }
             }

@@ -32,7 +32,11 @@ public interface InsConst {
      */
     Ins QUIT = new Ins(3, "quit", "name id");
 
-    Ins HEARTBEAT = new Ins(4, "heartbeat", "");
+    /**
+     * name: CoGropu.name
+     * id: Co.id
+     */
+    Ins HEARTBEAT = new Ins(4, "heartbeat", "name id");
 
     /****************************** Ins Constants ******************************/
     String ID = "id";

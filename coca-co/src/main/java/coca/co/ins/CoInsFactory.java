@@ -62,8 +62,8 @@ public class CoInsFactory {
      *            Co.id
      * @return
      */
-    public final CoIns<String> newJoin(String name, String... ids) {
-        return new TextCoIns(Ins.JOIN).data(toTextIns(name, ids));
+    public final CoIns<String> newJoin(String name, String id) {
+        return new TextCoIns(Ins.JOIN).data(toTextIns(name, id));
     }
 
     /**
@@ -74,8 +74,12 @@ public class CoInsFactory {
      *            Co.id
      * @return
      */
-    public final CoIns<String> newQuit(String name, String... ids) {
-        return new TextCoIns(Ins.QUIT).data(toTextIns(name, ids));
+    public final CoIns<String> newQuit(String name, String id) {
+        return new TextCoIns(Ins.QUIT).data(toTextIns(name, id));
+    }
+
+    public final CoIns<String> newHeartbeat(String name, String id) {
+        return new TextCoIns(Ins.HEARTBEAT).data(toTextIns(name, id));
     }
 
     protected String toTextIns(String data, String... others) {

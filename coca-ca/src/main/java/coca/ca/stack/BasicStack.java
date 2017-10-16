@@ -3,8 +3,8 @@
  */
 package coca.ca.stack;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,6 +48,11 @@ public class BasicStack<K, V> implements CaStack<K, V> {
         return true;
     }
 
+    @Override
+    public Ca<K, V> peek() {
+        return stack.peek();
+    }
+
     /*
      * (non-Javadoc)
      * @see coca.ca.CaStack#pop()
@@ -63,38 +68,50 @@ public class BasicStack<K, V> implements CaStack<K, V> {
      */
     @Override
     public CaValue<K, V> read(K key) {
+        if (stack.isEmpty()) return null;
         if (!policy.isReadable()) { throw new CaException(name + " is not readable for key:" + key); }
 
-        if (stack.isEmpty()) return null;
-
+        Ca<K, V> ca = null;
         CaValue<K, V> val = null;
         CaPointer<K, V> rp = policy.rp(key);
         while (rp.hasNext()) {
-            val = rp.next().read(key);
-            if (val != null) break;
-        }
-        // TODO async
-        Optional.<CaValue<K, V>> ofNullable(val).ifPresent(v -> {
-            if ((policy.rop() & CaPolicy.ROP_BACK_WRITE) > 0) {
-                writeInner(rp.reverse(), v);
+            ca = rp.next();
+            val = ca.read(key).sync(false);
+
+            if (val != null && val.value() != null) {
+                // TODO async
+                if (ca.type() == CaType.Remote && (policy.rop() & CaPolicy.ROP_BACK_WRITE) > 0) {
+                    writeInner(rp.reverse(), val);
+                }
+                break;
             }
-        });
+        }
         return val;
     }
 
     protected CaStack<K, V> writeInner(CaPointer<K, V> wp, CaValue<K, V> val) {
-        while (wp.hasNext()) {
-            Ca<K, V> ca = wp.next();
-            if (ca.write(val)) {
-                // TODO fire before local write
-                if (ca.type() == CaType.Local) fireStackChange(StackEvent.newEvent(this, ca, val));
-                if (!enableWop(CaPolicy.WOP_ALL_WRITE)) break;
-            } else {
-                LOG.error("{} write {} failed!", ca, val); // TODO to handle
-                if (enableWop(CaPolicy.WOP_ABORT_ON_FAIL)) break;
+        if (enableWop(CaPolicy.WOP_ALL_WRITE)) {
+            while (wp.hasNext()) {
+                if (!writeNext(wp, val)) {
+                    if (enableWop(CaPolicy.WOP_ABORT_ON_FAIL)) break;
+                }
             }
+        } else { // write once
+            if (wp.hasNext()) writeNext(wp, val);
         }
         return this;
+    }
+
+    private boolean writeNext(CaPointer<K, V> wp, CaValue<K, V> val) {
+        Ca<K, V> ca = wp.next();
+        if (ca.write(val)) {
+            // TODO fire before local write
+            fireStackChange(StackEvent.newEvent(this, ca, val));
+            return true;
+        }
+
+        LOG.error("{} write {} failed!", ca, val); // TODO to handle
+        return false;
     }
 
     protected void fireStackChange(StackEvent evt) {
@@ -109,6 +126,7 @@ public class BasicStack<K, V> implements CaStack<K, V> {
      */
     @Override
     public CaStack<K, V> write(CaValue<K, V> val) {
+        if (stack.isEmpty()) return this;
         if (!policy.isWritable()) { throw new CaException(name + " is not writable for key:" + val); }
 
         CaPointer<K, V> wp = policy.wp(val);
@@ -133,7 +151,20 @@ public class BasicStack<K, V> implements CaStack<K, V> {
     @Override
     public void close() {
         stack.clear();
+        // closeStack(); // ca maybe shared among multiple stack
     }
+
+    // protected void closeStack() {
+    // List<Ca<K, V>> clone = new ArrayList<>(stack);
+    // stack.clear();
+    // for (Ca<K, V> ca : clone) {
+    // try {
+    // ca.close();
+    // } catch (IOException e) {
+    // LOG.error(e.getMessage(), e);
+    // }
+    // }
+    // }
 
     @Override
     public String name() {
@@ -146,7 +177,7 @@ public class BasicStack<K, V> implements CaStack<K, V> {
     }
 
     @Override
-    public Ca<K, V> cache(int index) {
+    public Ca<K, V> ca(int index) {
         int size = size();
         if (index < 0 || index >= size) return null;
 
@@ -166,10 +197,20 @@ public class BasicStack<K, V> implements CaStack<K, V> {
     }
 
     @Override
-    public Ca<K, V> cache(String name) {
+    public Ca<K, V> ca(String name) {
         int idx = stack.lastIndexOf(new VoidCa<K, V>(name));
         if (idx < 0) return null;
         return stack.get(idx);
+    }
+
+    @Override
+    public List<Ca<K, V>> asList() {
+        return new ArrayList<>(stack);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

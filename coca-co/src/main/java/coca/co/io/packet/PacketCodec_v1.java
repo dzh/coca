@@ -77,6 +77,10 @@ public class PacketCodec_v1 implements PacketCodec {
         }
 
         public byte[] coIns() {
+            // debug
+            // if (_ins.ins().equals(new Ins(1025, "", ""))) {
+            // System.out.println("debug");
+            // }
             Charset charset = charset();
             byte[] ins = ins();
             byte[] from = _ins.from().id().getBytes(charset);
@@ -97,7 +101,7 @@ public class PacketCodec_v1 implements PacketCodec {
             buf.put(from);
             buf.put((byte) codec.length);
             buf.put(codec);
-            buf.putInt(codec.length);
+            buf.putInt(data.length);
             buf.put(data);
             return buf.array();
         }
@@ -183,6 +187,10 @@ public class PacketCodec_v1 implements PacketCodec {
             ByteBuffer insBuf = ByteBuffer.wrap(new byte[insSize]);
             bytes.get(insBuf.array());
             ByteBufferCoIns coIns = new ByteBufferCoIns(ins(insBuf));
+            // debug
+            // if (coIns.ins().equals(new Ins(1025, "", ""))) {
+            // System.out.println("debug");
+            // }
             // id
             int idSize = bytes.get();
             ByteBuffer idBuf = ByteBuffer.wrap(new byte[idSize]);

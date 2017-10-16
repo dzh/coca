@@ -108,6 +108,7 @@
 		<module>coca-redis</module>
 		<module>coca-ehcache</module>
 		<module>coca-guava</module>
+		<module>coca-demo</module>
 	</modules>
 
 </project>

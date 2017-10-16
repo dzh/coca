@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>dzh.github.io</groupId>
+		<artifactId>coca-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>coca-demo</artifactId>
+
+	<properties>
+		<coca.version>0.0.1-SNAPSHOT</coca.version>
+		<log4j.version>2.9.1</log4j.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>dzh.github.io</groupId>
+			<artifactId>coca-api</artifactId>
+			<version>${coca.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dzh.github.io</groupId>
+			<artifactId>coca-redis</artifactId>
+			<version>${coca.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dzh.github.io</groupId>
+			<artifactId>coca-rmq</artifactId>
+			<version>${coca.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dzh.github.io</groupId>
+			<artifactId>coca-guava</artifactId>
+			<version>${coca.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+	</dependencies>
+</project>

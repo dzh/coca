@@ -7,7 +7,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import coca.api.ca.CocaListener;
 import coca.api.ca.WithCo;
+import coca.api.co.CocaInsFactory;
 import coca.api.co.StackCoIns;
 import coca.api.handler.EvictHandler;
 import coca.api.handler.InsHandler;
@@ -31,6 +34,7 @@ import coca.co.CoConst;
 import coca.co.CoException;
 import coca.co.ins.CoIns;
 import coca.co.ins.CoIns.Ins;
+import coca.co.ins.VoidCoIns;
 
 /**
  * @author dzh
@@ -45,13 +49,29 @@ public class Coca implements Closeable {
 
     private Co co;
 
-    private volatile boolean closed = false;
-
     private Thread subT;
 
     private ExecutorService insT;
 
-    private Coca() {}
+    private CountDownLatch closeLatch;
+
+    private String name;
+
+    private Coca() {
+        this("coca");
+    }
+
+    private Coca(String name) {
+        this.name = name;
+    }
+
+    /**
+     * 
+     * @return coca's name
+     */
+    public String name() {
+        return name;
+    }
 
     protected void init(Map<String, String> conf) {
         // Ins thread pool
@@ -60,33 +80,40 @@ public class Coca implements Closeable {
         // create Co
         co = initCo(conf);
         if (co.isClosed()) throw new IllegalStateException("Co init failed!");
+
+        closeLatch = new CountDownLatch(1);
         startSubThread(co); // TODO CoActor is more convenient maybe
+        LOG.info("{} init", this.name);
     }
 
     protected void startSubThread(final Co co) {
         subT = new Thread(() -> {
             CoIns<?> ins = null;
             for (;;) {
-                if (closed) break;
+                if (co.isClosed()) break;
                 try {
                     ins = co.sub(10, TimeUnit.SECONDS);
-                    if (ins == null) continue;
-                    if (ins.from().equals(co)) {// ignore self ins TODO
-                        LOG.info("sub self-ins {}", ins);
+                    if (ins == VoidCoIns.VOID || ins == null) continue;
+                    if (co.equals(ins.from())) {// ignore self ins TODO
+                        LOG.info("{} ignore self-ins {}", Coca.this, ins);
                         continue;
                     }
 
                     insT.submit(customHandler(ins).coca(this));
+                } catch (InterruptedException e) {
+                    continue;
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                 }
             }
-        }, "Coca-SubThread");
+            LOG.info("{} closed.", subT.getName());
+            closeLatch.countDown();
+        }, name + "-sub");
         subT.setUncaughtExceptionHandler((t, e) -> {
             LOG.error(e.getMessage(), e);
         });
         subT.start();
-        LOG.info("{} start!", subT.getName());
+        LOG.info("{} start", subT.getName());
     }
 
     public InsHandler<?> customHandler(CoIns<?> coIns) {
@@ -107,14 +134,23 @@ public class Coca implements Closeable {
         return coca;
     }
 
+    public static final Coca newCoca(String name, Map<String, String> conf) {
+        Coca coca = new Coca(name);
+        coca.init(conf);
+        return coca;
+    }
+
     protected Co initCo(Map<String, String> conf) {
+        // default value
+        conf.putIfAbsent(CocaConst.P_CO_INS_FACTORY, CocaInsFactory.class.getName());
+
         return BasicCo.newCo(conf);
     }
 
     /**
      * 
      * @param name
-     *            stack's name to be used for ins's group name
+     *            stack's name to be used for ins's sync-group name
      * @param ca
      *            small index is on the stack's top
      * @param listeners
@@ -129,7 +165,7 @@ public class Coca implements Closeable {
             co.join(name); // join
         }
 
-        CaStack<String, V> stack = StackManager.newStack(name);
+        CaStack<String, V> stack = StackManager.newStack(name);// TODO
         for (int i = ca.size() - 1; i >= 0; i--)
             stack.push(ca.get(i));
         for (StackListener l : listeners) {
@@ -140,6 +176,7 @@ public class Coca implements Closeable {
         }
 
         stacks.put(name, stack);
+        LOG.info("{} newStack {}", this.name, name);
         return stack;
     }
 
@@ -156,12 +193,19 @@ public class Coca implements Closeable {
         } finally {
             closeSubT();
             closeInsT();
+            try {
+                closeLatch.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {}
+            for (Entry<String, CaStack<String, ?>> e : stacks.entrySet()) {
+                e.getValue().close();
+            }
             stacks.clear();
+            LOG.info("{} closed.", this.name);
         }
     }
 
     private void closeInsT() {
-        if (insT != null) {
+        if (insT != null && !insT.isTerminated()) {
             try {
                 insT.shutdown();
                 insT.awaitTermination(30, TimeUnit.SECONDS);// TODO
@@ -170,8 +214,12 @@ public class Coca implements Closeable {
     }
 
     private void closeSubT() {
-        closed = true;
         if (subT != null) subT.interrupt();
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 
 }

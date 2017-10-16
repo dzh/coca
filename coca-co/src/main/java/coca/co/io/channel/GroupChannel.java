@@ -136,7 +136,7 @@ public abstract class GroupChannel implements CoChannel {
                     pf = wq.take();
                     writeImpl(pf);
                 } catch (InterruptedException e) {
-                    LOG.warn("WriterThread {} interrupted:" + e.getMessage(), getName());
+                    LOG.warn("WriterThread {} interrupted", getName());
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                     if (pf != null) pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));

@@ -29,8 +29,6 @@ public abstract class BasicFuture<V> implements CoFuture<V> {
 
     public void result(V result) {
         synchronized (this) {
-            if (isCancelled() || isDone()) return; // TODO
-
             this.result = result;
             if (isDone()) {
                 gotLatch.countDown();

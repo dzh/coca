@@ -31,14 +31,18 @@ public class CocaListener implements StackListener, WithCo {
      */
     @Override
     public void stackChange(StackEvent evnt) {
-        if (evnt.isLocalChanged()) {
-            StackCoIns ins = StackCoIns.newStackIns(evnt.stack(), CocaConst.EVICT);
-            ins.from(co).to(new BasicGroup(evnt.getStackName())).data(evictData(evnt));
-            try {
-                co.pub(ins);
-            } catch (CoException e) {
-                LOG.error(e.getMessage(), e);
-            }
+        if (evnt.isLocalChanged() && evnt.val().isSync()) {
+            pubEvict(evnt);
+        }
+    }
+
+    protected void pubEvict(StackEvent evnt) {
+        StackCoIns ins = StackCoIns.newStackIns(evnt.stack(), CocaConst.EVICT);
+        ins.from(co).to(new BasicGroup(evnt.getStackName())).data(evictData(evnt));
+        try {
+            co.pub(ins);
+        } catch (CoException e) {
+            LOG.error(e.getMessage(), e);
         }
     }
 

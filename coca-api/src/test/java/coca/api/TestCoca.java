@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import coca.api.co.CocaInsFactory;
 import coca.ca.BasicCa;
 import coca.ca.Ca;
 import coca.ca.CaValue;
@@ -36,7 +35,7 @@ public class TestCoca {
     @Before
     public void initCoca() {
         Map<String, String> conf = new HashMap<>();
-        conf.put(CocaConst.P_CO_INS_FACTORY, CocaInsFactory.class.getName());
+        // conf.put(CocaConst.P_CO_INS_FACTORY, CocaInsFactory.class.getName());
 
         coca = Coca.newCoca(conf);
     }
@@ -55,11 +54,10 @@ public class TestCoca {
         List<Ca<String, String>> caList = Arrays.asList(new CaLocal<String, String>("local"), new CaRemote<String, String>("remote"));
         LOG.info("index-{} name-{}", 1, caList.get(1).name());
         CaStack<String, String> stack = coca.<String> withStack("test", caList);
-        Ca<String, String> ca = stack.cache(0);
+        Ca<String, String> ca = stack.ca(0);
         Assert.assertEquals("local", ca.name());
 
-        LOG.info("index-{} name-{}", 1, stack.cache(1).name());
-        coca.close();
+        LOG.info("index-{} name-{}", 1, stack.ca(1).name());
     }
 
     public static class CaLocal<K, V> extends BasicCa<K, V> {

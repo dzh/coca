@@ -49,12 +49,12 @@ public class StackPointer<K, V> implements CaPointer<K, V> {
 
     @Override
     public Ca<K, V> next() {
-        return stack().cache(down ? index++ : index--);
+        return stack().ca(down ? index++ : index--);
     }
 
     @Override
     public CaPointer<K, V> reverse() {
-        index = down ? index - 1 : index + 1;
+        index = down ? index - 2 : index + 2;
         down = down ? false : true;
         return this;
     }

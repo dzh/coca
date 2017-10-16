@@ -22,6 +22,9 @@ public class CaValue<K, V> {
     // time to live
     private long ttl;
 
+    // whether or not sync via Co
+    private boolean sync = true;
+
     public CaValue() {}
 
     public CaValue(K k, V v) {
@@ -63,6 +66,15 @@ public class CaValue<K, V> {
     @Override
     public String toString() {
         return key + ":" + value;
+    }
+
+    public boolean isSync() {
+        return sync;
+    }
+
+    public CaValue<K, V> sync(boolean sync) {
+        this.sync = sync;
+        return this;
     }
 
 }

@@ -3,6 +3,8 @@
  */
 package coca.ca.stack;
 
+import java.util.List;
+
 import coca.ca.Ca;
 import coca.ca.CaValue;
 import coca.ca.stack.policy.CaPolicy;
@@ -33,6 +35,14 @@ public interface CaStack<K, V> {
 
     /**
      * 
+     * @return stack top's ca or null if stack is empty
+     */
+    Ca<K, V> peek();
+
+    List<Ca<K, V>> asList();
+
+    /**
+     * 
      * @return Ca count
      */
     int size();
@@ -44,9 +54,9 @@ public interface CaStack<K, V> {
      * @param index
      * @return Ca at index location of stack
      */
-    Ca<K, V> cache(int index);
+    Ca<K, V> ca(int index);
 
-    Ca<K, V> cache(String name);
+    Ca<K, V> ca(String name);
 
     CaStack<K, V> withPolicy(CaPolicy<K, V> p);
 

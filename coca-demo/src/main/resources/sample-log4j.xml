@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level]  [%t] %c{1} - %msg%n" />
+		</Console>
+	</Appenders>
+
+	<Loggers>
+		<Logger name="coca.demo" level="info" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Logger name="coca.api" level="info" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Logger name="coca.ca" level="error" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Logger name="coca.co" level="error" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Logger name="coca.guava" level="warn" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Logger name="coca.redis" level="warn" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Root level="error">
+			<appender-ref ref="console" />
+		</Root>
+	</Loggers>
+</Configuration>

@@ -14,25 +14,37 @@ import coca.co.ins.InsConst;
 
 /**
  * @author dzh
- * @date Sep 14, 2017 2:41:27 PM
+ * @date Oct 16, 2017 4:36:27 PM
  * @since 0.0.1
  */
-public class JoinActor extends BasicActor {
+public class HeartbeatActor extends BasicActor {
 
     // TODO
     private ExecutorService ES = Executors.newSingleThreadExecutor();
 
+    /*
+     * (non-Javadoc)
+     * @see coca.co.ins.actor.CoActor#name()
+     */
     @Override
     public String name() {
-        return "JoinActor";
+        return "HeartbeatActor";
     }
 
+    /*
+     * (non-Javadoc)
+     * @see coca.co.ins.actor.CoActor#accept(coca.co.ins.CoIns)
+     */
     @Override
     public boolean accept(CoIns<?> ins) {
         if (!isOpen()) return false;
-        return ins.ins().equals(InsConst.JOIN);
+        return ins.ins().equals(InsConst.HEARTBEAT);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see coca.co.ins.actor.CoActor#submit(coca.co.ins.CoIns)
+     */
     @Override
     public void submit(CoIns<?> ins) {
         LOG.info("{} {} submit {}", io.co(), name(), ins);
@@ -44,10 +56,7 @@ public class JoinActor extends BasicActor {
                     Co co = io.co();
                     CoGroup g = co.group(ins.toGroup().name(), true);
                     LOG.info("join before {}", g);
-                    if (g.join(ins.from()) && !co.equals(ins.from())) {
-                        CoIns<?> hb = co.insFactory().newHeartbeat(g.name(), co.id()).from(co).to(g).to(ins.from());
-                        co.pub(hb);
-                    }
+                    g.join(ins.from());
                     LOG.info("join after {}", g);
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);

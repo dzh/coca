@@ -122,6 +122,11 @@ public class BasicIO implements CoIO {
         packet.version((short) 1);// TODO
         packet.magic(InsPacket.M);
         packet.ins(encodeCoIns(ins));
+
+        // debug
+        // if (packet.ins().ins().equals(new Ins(1025, "", ""))) {
+        // LOG.debug("{}", ins);
+        // }
         return packet;
     }
 
@@ -135,6 +140,10 @@ public class BasicIO implements CoIO {
         copy.codec(ins.codec());
         if (ins.data() != null) copy.data(codec(ins.codec()).decode(ins.data().array()));
         LOG.info("sub {}", copy);
+        // debug
+        // if (ins.ins().equals(new Ins(1025, "", ""))) {
+        // LOG.debug("{}", ins);
+        // }
         return copy;
     }
 

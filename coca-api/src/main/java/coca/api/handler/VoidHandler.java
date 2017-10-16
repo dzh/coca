@@ -3,6 +3,8 @@
  */
 package coca.api.handler;
 
+import coca.co.ins.VoidCoIns;
+
 /**
  * @author dzh
  * @date Oct 13, 2017 4:29:47 PM
@@ -13,7 +15,7 @@ public class VoidHandler extends InsHandler<Void> {
     public static final VoidHandler VOID = new VoidHandler();
 
     public VoidHandler() {
-        super(null);
+        super(VoidCoIns.VOID);
     }
 
     /*

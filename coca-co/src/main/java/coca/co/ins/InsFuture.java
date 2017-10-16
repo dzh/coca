@@ -15,8 +15,6 @@ public class InsFuture extends BasicFuture<InsResult> {
 
     private final CoIns<?> pub;
 
-    private InsResult result;
-
     public InsFuture(CoIns<?> pub) {
         this.pub = pub;
     }
@@ -31,7 +29,7 @@ public class InsFuture extends BasicFuture<InsResult> {
 
     @Override
     public boolean isDone() {
-        if (isCancelled()) return true;
+        if (super.isDone()) return true;
         boolean done = false;
         if (hasAck()) {
             done = result.st == InsResult.InsSt.ACK_SUCC || result.st == InsResult.InsSt.ACK_FAIL

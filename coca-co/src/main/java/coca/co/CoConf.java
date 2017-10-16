@@ -63,7 +63,9 @@ public class CoConf implements CoConst {
     }
 
     public void withActors(CoIO io) throws Exception {
-        String[] actors = conf.getOrDefault(P_CO_IO_ACTORS, "coca.co.ins.actor.JoinActor coca.co.ins.actor.QuitActor").split(" ");
+        String[] actors = conf
+                .getOrDefault(P_CO_IO_ACTORS, "coca.co.ins.actor.JoinActor coca.co.ins.actor.QuitActor coca.co.ins.actor.HeartbeatActor")
+                .split(" ");
         for (String actor : actors) {
             io.withActor(newActor(actor));
         }

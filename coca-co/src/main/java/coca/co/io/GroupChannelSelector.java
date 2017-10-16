@@ -4,9 +4,12 @@
 package coca.co.io;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -92,19 +95,27 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
         // TODO acquire a thread from pool
         ChannelThread t = new ChannelThread(ch);
         t.start();
+        channelThreads.put(ch, t);
     }
+
+    // used for close
+    private Map<CoChannel, ChannelThread> channelThreads = Collections.synchronizedMap(new HashMap<>());
 
     @Override
     public void close() throws IOException {
+        if (closed) return;
         closed = true;
         channels.forEach((name, ch) -> {
             try {
                 ch.close();
+                channelThreads.get(ch).interrupt();
+                channelThreads.get(ch).awaitExit(10, TimeUnit.SECONDS);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
         });
         channels.clear();
+        channelThreads.clear();
     }
 
     @Override
@@ -112,7 +123,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
         try {
             return _queue.poll(timeout, unit);
         } catch (InterruptedException e) {
-            LOG.error(e.getMessage(), e);
+            // LOG.warn("interrupted");
         }
         return null;
     }
@@ -121,6 +132,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
     class ChannelThread extends Thread {
 
         CoChannel ch;
+        private CountDownLatch closeLatch = new CountDownLatch(1);
 
         public ChannelThread(CoChannel ch) {
             super("ChannelThread-" + ch.name());
@@ -153,13 +165,21 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
                         LOG.error("discard {}", packet.toString());// TODO save
                     }
                 } catch (InterruptedException e) {
-                    LOG.error(e.getMessage(), e);
+                    LOG.warn("{} Interrupted", getName());
                     break;
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                 }
             }
             LOG.info("{} exit!", getName());
+            closeLatch.countDown();
+        }
+
+        public boolean awaitExit(long timeout, TimeUnit unit) {
+            try {
+                return closeLatch.await(timeout, unit);
+            } catch (InterruptedException e) {}
+            return false;
         }
     }
 

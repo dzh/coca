@@ -25,13 +25,14 @@ public class EvictHandler extends InsHandler<String> {
     @Override
     public void run() {
         StackCoIns ins = (StackCoIns) ins();
-        LOG.info("evict {}", ins);
         try {
             Map<String, String> data = ins.format(MapInsFormat);
             CaStack<String, Object> stack = coca().stack(data.get(CocaConst.F_stack));
-            Ca<String, Object> ca = stack.cache(data.get(CocaConst.F_ca));
+            Ca<String, Object> ca = stack.ca(data.get(CocaConst.F_ca));
             CaValue<String, Object> val = CaValue.newVal(data.get(CocaConst.F_key), null);
             ca.write(val);
+
+            LOG.info("{} {} evict {}", coca(), ca, ins);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

@@ -26,7 +26,7 @@ public class CaGuava<K, V> extends BasicCa<K, V> {
     }
 
     public CaGuava(String name) {
-        this(name, CacheBuilder.newBuilder().concurrencyLevel(16).maximumSize(Integer.MAX_VALUE).expireAfterWrite(60, TimeUnit.SECONDS)
+        this(name, CacheBuilder.newBuilder().concurrencyLevel(16).maximumSize(Integer.MAX_VALUE).expireAfterWrite(10, TimeUnit.SECONDS)
                 .build());
     }
 
@@ -48,7 +48,7 @@ public class CaGuava<K, V> extends BasicCa<K, V> {
         } else {
             ca.put(val.key(), val.value());
         }
-        return false;
+        return true;
     }
 
     @Override

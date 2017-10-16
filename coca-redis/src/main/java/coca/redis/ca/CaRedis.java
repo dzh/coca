@@ -6,6 +6,7 @@ package coca.redis.ca;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.redisson.Redisson;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 
@@ -19,22 +20,26 @@ import coca.ca.CaValue;
  */
 public class CaRedis<K, V> extends BasicCa<K, V> {
 
-    private RedissonClient redis;
+    private RedissonClient redisson;
 
-    public CaRedis(String name, RedissonClient redis) {
+    public CaRedis(String name) {
+        this(name, Redisson.create());
+    }
+
+    public CaRedis(String name, RedissonClient redisson) {
         super(name, CaType.Remote);
-        this.redis = redis;
+        this.redisson = redisson;
     }
 
     @Override
     protected CaValue<K, V> doRead(K key) {
-        RBucket<V> bucket = redis.getBucket(key.toString());
+        RBucket<V> bucket = redisson.getBucket(key.toString());
         return CaValue.newVal(key, bucket.get());
     }
 
     @Override
     protected boolean doWrite(CaValue<K, V> val) {
-        RBucket<V> bucket = redis.getBucket(val.key().toString());
+        RBucket<V> bucket = redisson.getBucket(val.key().toString());
         V v = val.value();
         if (v == null) {
             bucket.delete();
@@ -46,12 +51,14 @@ public class CaRedis<K, V> extends BasicCa<K, V> {
                 bucket.set(v);
             }
         }
-        return false;
+        return true;
     }
 
     @Override
     public void close() throws IOException {
+        if (isClosed()) return;
         super.close();
+        if (redisson != null) redisson.shutdown(2, 15, TimeUnit.SECONDS);// TODO
     }
 
 }

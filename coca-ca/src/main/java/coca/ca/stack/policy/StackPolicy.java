@@ -19,7 +19,7 @@ public class StackPolicy<K, V> implements CaPolicy<K, V> {
 
     private long rop = CaRPolicy.ROP_BACK_WRITE;
 
-    private long wop = CaWPolicy.WOP_ALL_WRITE & CaWPolicy.WOP_ABORT_ON_FAIL;
+    private long wop = CaWPolicy.WOP_ALL_WRITE | CaWPolicy.WOP_ABORT_ON_FAIL;
 
     public StackPolicy() {}
 

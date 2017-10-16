@@ -163,7 +163,7 @@ public class BasicCoIns<T> implements CoIns<T> {
 
     @Override
     public String toString() {
-        return "id_" + id() + " cntl_" + cntl() + " ttl_" + ttl() + " " + ins;
+        return "id_" + id() + " cntl_" + cntl() + " ttl_" + ttl() + " " + ins + " data_" + data();
     }
 
 }

@@ -131,7 +131,7 @@ public interface CoIns<T> extends Cloneable {
 
         @Override
         public String toString() {
-            return "Ins_" + code + "_" + name + "_" + format;
+            return "Ins[" + code + "_" + name + "_" + format + "]";
         }
 
         @Override

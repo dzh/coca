@@ -84,14 +84,15 @@ public class RedisGroupChannel extends GroupChannel {
     }
 
     protected void doRecvMessage(String channel, byte[] message) {
-        ByteBuffer packet = ByteBuffer.wrap(message);
-        packet.position(4);
-        int v = packet.getShort();
-        packet.rewind();
-        InsPacket ins = codec(v).decode(packet);
-        LOG.info("Recv from channel:{}, read packet {}", channel, ins);
+        ByteBuffer bytes = ByteBuffer.wrap(message);
+        bytes.position(4);
+        int v = bytes.getShort();
+        bytes.rewind();
+        InsPacket packet = codec(v).decode(bytes);
+
+        LOG.info("Recv from channel:{}, read packet {} {}", channel, packet, packet.ins());
         // TODO miss packet
-        if (!receive(ins)) LOG.info("discard {}", ins);
+        if (!receive(packet)) LOG.info("discard {}", packet);
     }
 
     private String redisAddr() {
@@ -141,7 +142,7 @@ public class RedisGroupChannel extends GroupChannel {
         super.close();
         // redisson.getTopic(groupTopic()).removeAllListeners();
         // redisson.getTopic(selfTopic()).removeAllListeners();
-        if (redisson != null && !redisson.isShutdown()) redisson.shutdown(2, 15, TimeUnit.SECONDS);
+        if (redisson != null) redisson.shutdown(2, 15, TimeUnit.SECONDS);
     }
 
 }
