@@ -47,7 +47,7 @@ public class TestRedisCo {
             ins = co1.sub(5, TimeUnit.SECONDS);
             LOG.info("sub {} to update cache", ins);
 
-            Thread.sleep(5000);
+            Thread.sleep(30000);
         }
 
     }

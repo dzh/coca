@@ -8,12 +8,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coca.co.BasicGroup.CoProxy;
 import coca.co.init.CoInit;
 import coca.co.init.CoInitException;
 import coca.co.init.MapInit;
@@ -105,10 +107,52 @@ public class BasicCo implements Co {
             io.init(this);
 
             this.closed = false;
+
+            startHeartbeatDeamon();
         } finally {
             LOG.info("{} init {}", this, closed ? "fail" : "succ");
         }
         return this;
+    }
+
+    private void startHeartbeatDeamon() {
+        final Thread hbT = new Thread(() -> {
+            while (true) {
+                if (closed) break;
+                try {
+                    Co co = BasicCo.this;
+                    //
+                    int tick = conf.getInt(CoConst.P_CO_HEARTBEAT_TICK, "3000");
+                    Thread.sleep(tick);
+                    // pub heartbeat
+                    for (Entry<String, CoGroup> e : groups.entrySet()) {
+                        CoGroup g = e.getValue();
+                        if (g.contain(co)) {
+                            CoIns<?> ins = insFactory().newHeartbeat(g.name(), id()).from(co).to(g);
+                            co.pub(ins);
+                        }
+
+                        // timeout checkout
+                        for (Co mem : g.members()) {
+                            if (co.equals(mem)) continue; // ignore self
+                            if (mem instanceof CoProxy) {
+                                long accessTime = ((CoProxy) mem).lastAccess();
+                                long timeout = System.currentTimeMillis() - accessTime;
+                                if (timeout > 3 * tick) {
+                                    g.quit(mem);
+                                    LOG.info("{} quit {} after {}ms", g.name(), co.id(), timeout);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
+            LOG.info("headtbeat-{} exit!", id());
+        }, "heartbeat-" + id);
+        hbT.setDaemon(true);
+        hbT.start();
     }
 
     @Override

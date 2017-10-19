@@ -16,16 +16,16 @@ Coca Project
         - Ca                缓存代理，具体实现如CaGuava、CaRedis等
         - stack.CaStack     Stack维护一组Ca的读写,从顶到底表示1级到N级缓存,通常1级缓存是Local类型(如CaGuava),2级缓存是Remote类型(如CaRedis)
         
-    - coca-co                       指令de组同步核心实现
+    - coca-co                       指令de同步核心实现
         - Co                        Co表示一个同步组件,一个应用生成一个Co实例                  
-        - ins.InsConst              Co内部指令定义
-        - ins.actor                 CoActor拦截并处理指令,除了Co.sub()之外的处理指令方式
+        - ins.InsConst              Co内部指令定义,自定义指令参考它
+        - ins.actor                 CoActor拦截并处理指令,除了Co.sub()之外的处理指令接收并处理方式
         - io.GroupChannelSelector   管理Channel
         - channel.GroupChannel      组Channel实现组内指令同步的主要功能
         
     - coca-demo         示例和测试
         - benchmark     coca性能压测
-        - sample        简单的coca使用示例    
+        - sample        简单的coca使用示例 
         
     - coca-ehcache      TODO 待实现
     

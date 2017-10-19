@@ -1,6 +1,22 @@
-coca
+coca = co + ca
 ===================================
-Co-Cache 缓存的协同框架
+Co-Cache 协同缓存框架
+
+## 核心概述
+- coca-api 组合ca和co功能, 可以看作是co和ca如何使用的参考实现。可适用于多级缓存同步更新需求场景，
+    如多个jvm堆缓存(1级)+redis(2级)场景,常见需求是任一jvm堆更新后同步修改其他jvm和redis
+- coca-ca 实现多级缓存调度策略,使用方式如下:
+    - 继承Ca,实现不同的缓存操作，可参考CaGuava、CaRedis. Ca实例放入CaStack中实现调度
+    - CaStack和CaPolicy实现了对多级缓存的读写操作控制, 具体参考下文的示例
+    - 一个Ca可放入不同的CaStack实现不同的读写处理
+    - 注意,Ca不用时记得释放资源Ca.close, 一般的关闭次序为CaStack.close -> Ca.close
+- coca-co 实现多机Co实例之间的组消息同步,使用时主要的配置如下:
+    - CoIns定义消息的格式, CoIns = Ins(指令定义,说明含义) + data(数据内容)
+    - 继承CoInsFactory实现自定义CoIns创建工厂
+    - 继承GroupChannelSelector实现自定义的组通道创建,可参考RedisChannelSelector、RMQChannelSelector
+    - 通过conf配置自定义实现,详见BasicCo.newCo(Map<String,String> conf)
+    - 通过Co.pub发送指令、Co.sub接收指令，可看考Coca里的实现方式
+- 其他工程都包含具体的ca或co实现
 
 ## 快速开始
 - 示例说明
@@ -19,7 +35,7 @@ Co-Cache 缓存的协同框架
         - 支持回写, 2级缓存读到的消息写到1级缓存
     - 缓存写策略(默认): 2级缓存 -> 1级缓存 -> 消息同步
 
-- 在IDE中启动SampleMain,执行testShareWrite, (和代码一起看)打印日志分析如下:
+- 在IDE中启动[SampleMain](coca-demo/src/main/java/coca/demo/sample/SampleMain.java),执行testShareWrite, (和代码一起看)打印日志分析如下:
 
 ```log
 2017-10-16 18:19:34.918 [INFO ]  [main] Coca - app1-sub start           
@@ -69,7 +85,15 @@ Co-Cache 缓存的协同框架
 
 
 ## 文档链接
-- [工程源码](doc/coca_project.md)
+- [源码说明](doc/coca_project.md)
+
+## TODO
+- co group内容更新，添加心跳检测
+- 配置说明，代码配置
+- 性能测试
+- 发布1.0.0 传到maven
+- 发布0.0.1 jdk7 传到maven
+
 
 
 

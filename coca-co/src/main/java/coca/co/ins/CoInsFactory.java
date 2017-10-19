@@ -78,6 +78,14 @@ public class CoInsFactory {
         return new TextCoIns(Ins.QUIT).data(toTextIns(name, id));
     }
 
+    /**
+     * 
+     * @param name
+     *            group name
+     * @param id
+     *            co id
+     * @return
+     */
     public final CoIns<String> newHeartbeat(String name, String id) {
         return new TextCoIns(Ins.HEARTBEAT).data(toTextIns(name, id));
     }

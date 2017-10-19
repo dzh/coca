@@ -34,7 +34,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
 
     static final Logger LOG = LoggerFactory.getLogger(GroupChannelSelector.class);
 
-    Map<String, CoChannel> channels;
+    Map<String, CoChannel> channels; // <group name,channel>
 
     private volatile boolean closed = false;
 
