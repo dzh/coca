@@ -41,7 +41,7 @@ import coca.co.ins.VoidCoIns;
  * @date Nov 12, 2016 10:44:46 PM
  * @since 0.0.1
  */
-public class Coca implements Closeable {
+public class Coca implements Closeable, CocaConst {
 
     static final Logger LOG = LoggerFactory.getLogger(Coca.class);
 
@@ -75,7 +75,8 @@ public class Coca implements Closeable {
 
     protected void init(Map<String, String> conf) {
         // Ins thread pool
-        insT = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 10);// TODO config
+        insT = Executors.newFixedThreadPool(Integer
+                .parseInt(conf.getOrDefault(P_COCA_HANDLER_THREDNUM, String.valueOf(Runtime.getRuntime().availableProcessors() * 6))));
 
         // create Co
         co = initCo(conf);

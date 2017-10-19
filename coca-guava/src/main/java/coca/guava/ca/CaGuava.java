@@ -35,6 +35,12 @@ public class CaGuava<K, V> extends BasicCa<K, V> {
         this.ca = ca;
     }
 
+    // custom
+    public CaGuava(String name, CacheBuilder<K, V> builder) {
+        super(name, CaType.Local);
+        this.ca = builder.build();
+    }
+
     @Override
     protected CaValue<K, V> doRead(K key) {
         V val = ca.getIfPresent(key);

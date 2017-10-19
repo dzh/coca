@@ -21,4 +21,6 @@ public interface CocaConst extends CoConst, InsConst {
     /************************** Ins Definition[1025,2048] ************************/
     Ins EVICT = new Ins(1025, "evict", "stack ca key"); // evict key from cache
 
+    /********************** Coca configuration **********************/
+    String P_COCA_HANDLER_THREDNUM = "coca.handler.threadnum";
 }

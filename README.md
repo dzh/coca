@@ -88,9 +88,7 @@ Co-Cache 协同缓存框架
 - [源码说明](doc/coca_project.md)
 
 ## TODO
-- co group内容更新，添加心跳检测
-- 配置说明，代码配置
-- 性能测试
+- 性能测试 验证稳定性
 - 发布1.0.0 传到maven
 - 发布0.0.1 jdk7 传到maven
 

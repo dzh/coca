@@ -47,10 +47,10 @@ Coca Project
 ```
 
 ## 配置说明
-- Coca配置参数
-- Ca配置参数
-- Co配置参数
-
+- [Coca配置参数](../coca-api/README.md)
+- [Co配置参数](../coca-co/README.md)
+- [redis实现](../coca-redis/README.md)
+- [RocketMQ实现](../coca-rmq/README.md)
    
 ## 版本依赖
 - (0.0.1, 1.0.0)

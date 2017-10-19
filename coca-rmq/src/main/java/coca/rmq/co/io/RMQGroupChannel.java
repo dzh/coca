@@ -32,22 +32,19 @@ import coca.co.io.channel.GroupChannel;
 import coca.co.io.channel.PacketFuture;
 import coca.co.io.channel.PacketResult;
 import coca.co.io.packet.InsPacket;
+import coca.rmq.RMQConst;
 
 /**
  * @author dzh
  * @date Sep 8, 2017 6:02:39 PM
  * @since 0.0.1
  */
-public class RMQGroupChannel extends GroupChannel {
+public class RMQGroupChannel extends GroupChannel implements RMQConst {
 
     static final Logger LOG = LoggerFactory.getLogger(RMQGroupChannel.class);
 
     private DefaultMQPushConsumer consumer;
     private DefaultMQProducer producer;
-
-    public static final String P_CO_RMQ_NAMESRV = "co.rmq.namesrv";
-    public static final String P_CO_RMQ_TOPIC_KEY = "co.rmq.topic.key";
-    public static final String P_CO_RMQ_TOPIC_QUEUENUM = "co.rmq.topic.queuenum";
 
     private String namesrvAddr;
 
