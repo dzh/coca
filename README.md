@@ -3,8 +3,8 @@ coca = co + ca
 Co-Cache 协同缓存框架
 
 ## 核心概述
-- coca-api 组合ca和co功能, 可以看作是co和ca如何使用的参考实现。可适用于多级缓存同步更新需求场景，
-    如多个jvm堆缓存(1级)+redis(2级)场景,常见需求是任一jvm堆更新后同步修改其他jvm和redis
+- coca-api 组合ca和co功能,可以看作是co和ca如何使用的参考实现,可用于多级缓存同步更新、配置信息修改实时通知等场景
+    - 如多个jvm堆缓存(1级)+redis(2级)场景,常见需求是任一jvm堆更新后同步修改其他jvm和redis
 - coca-ca 实现多级缓存调度策略,使用方式如下:
     - 继承Ca,实现不同的缓存操作，可参考CaGuava、CaRedis. Ca实例放入CaStack中实现调度
     - CaStack和CaPolicy实现了对多级缓存的读写操作控制, 具体参考下文的示例
@@ -16,7 +16,7 @@ Co-Cache 协同缓存框架
     - 继承GroupChannelSelector实现自定义的组通道创建,可参考RedisChannelSelector、RMQChannelSelector
     - 通过conf配置自定义实现,详见BasicCo.newCo(Map<String,String> conf)
     - 通过Co.pub发送指令、Co.sub接收指令，可看考Coca里的实现方式
-- 其他工程都包含具体的ca或co实现
+- 其他工程包含具体的ca或co实现
 
 ## 快速开始
 - 示例说明
@@ -89,8 +89,10 @@ Co-Cache 协同缓存框架
 
 ## TODO
 - 性能测试 验证稳定性
+- redis保证组消息可靠到达，使用日志+group实现重发机制
+- 组消息丢失，手工补救方式
 - 发布1.0.0 传到maven
-- 发布0.0.1 jdk7 传到maven
+- 发布0.0.1 ->jdk7 传到maven
 
 
 
