@@ -1,7 +1,0 @@
-
-[ca]
-
-
-[co]
-co.impl=coca.co.rmq.RMQCo
-co.init=coca.co.init.FileCoInit

@@ -138,7 +138,7 @@ public class BasicCo implements Co {
                             if (mem instanceof CoProxy) {
                                 long accessTime = ((CoProxy) mem).lastAccess();
                                 long timeout = System.currentTimeMillis() - accessTime;
-                                if (timeout > 3 * tick) {
+                                if (timeout > 5 * tick) {
                                     g.quit(mem);
                                     LOG.info("{} quit {} after {}ms", g.name(), co.id(), timeout);
                                 }

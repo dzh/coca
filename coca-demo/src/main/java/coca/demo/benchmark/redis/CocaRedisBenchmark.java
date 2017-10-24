@@ -54,9 +54,8 @@ public class CocaRedisBenchmark {
         CocaSample sub = new CocaSample("appSub", "syncGroup");
         sub.initCoca(CONF);
 
-        // warm up
-        int preCount = 10000;
-        for (int i = 0; i < preCount; i++) {
+        int warmCount = 10000;
+        for (int i = 0; i < warmCount; i++) { // warm up
             String key = String.valueOf(ThreadLocalRandom.current().nextInt(6, 10));
             pub.writeKey(key, ThreadLocalRandom.current().nextInt(100, 1000), 3000, true);
         }
@@ -73,8 +72,8 @@ public class CocaRedisBenchmark {
         pub.close();
         sub.close();
 
-        LOG.info("pub-{} sub-{} time-{} {}/s", pub.countPub() - preCount, sub.countSub() - preCount, s1 - s0,
-                (int) ((pub.countPub() - preCount) / ((s1 - s0) / 1000.0)));
+        LOG.info("pub-{} sub-{} time-{} {}/s", pub.countPub() - warmCount, sub.countSub() - warmCount, s1 - s0,
+                (int) ((pub.countPub() - warmCount) / ((s1 - s0) / 1000.0)));
     }
 
 }

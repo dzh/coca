@@ -76,44 +76,74 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         return this;
     }
 
-    private String namesrv() {
+    protected String namesrv() {
         return selector.io().co().conf().get(P_CO_RMQ_NAMESRV, "127.0.0.1:9876");
     }
 
-    private String topicKey() {
+    protected String topicKey() {
         return selector.io().co().conf().get(P_CO_RMQ_TOPIC_KEY, "DefaultCluster");
     }
 
-    private int topicQueueNum() {
+    protected int topicQueueNum() {
         return selector.io().co().conf().getInt(P_CO_RMQ_TOPIC_QUEUENUM, "8");
     }
 
-    private String consumeTimestamp() {
+    protected int consumeMessageBatchMaxSize() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_MESSAGE_BATCH_MAXSIZE, "10");
+    }
+
+    protected int consumeThreadMax() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_THREAD_MAX, "64");
+    }
+
+    protected int consumeThreadMin() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_THREAD_MIN, "20");
+    }
+
+    protected int messageIgnoreTimeout() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_MESSAGE_IGNORE_TIMEOUT, "30");
+    }
+
+    protected String consumeTimestamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         return sdf.format(new Date());
     }
 
+    protected int consumeTimeout() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_TIMEOUT, "15");
+    }
+
     public void startConsumer() throws Exception {
-        consumer = new DefaultMQPushConsumer(name());// TODO
+        consumer = new DefaultMQPushConsumer(name() + "_" + consumeTimestamp());
         consumer.setNamesrvAddr(getNamesrvAddr());
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_TIMESTAMP);
         consumer.setConsumeTimestamp(consumeTimestamp());
-        consumer.setConsumeTimeout(6);
+        // consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
+        consumer.setConsumeMessageBatchMaxSize(consumeMessageBatchMaxSize());
+        consumer.setConsumeTimeout(consumeTimeout());
         consumer.setMessageModel(MessageModel.BROADCASTING);
-        consumer.subscribe(name(), name() + " || " + String.valueOf(selector.io().co().hashCode()));// TODO
+        consumer.subscribe(topic(), name() + " || " + String.valueOf(selector.io().co().hashCode()));// TODO
         consumer.setVipChannelEnabled(false);
+        consumer.setConsumeThreadMax(consumeThreadMax());
+        consumer.setConsumeThreadMin(consumeThreadMin());
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
-                LOG.info("Receive New Messages:{}", msgs);
-                msgs.forEach(msg -> { // FIXME receive from offset 0 why
+                int ignoreTime = messageIgnoreTimeout() * 1000;
+                msgs.forEach(msg -> {
                     try {
+                        if ((System.currentTimeMillis() - msg.getBornTimestamp()) > ignoreTime) {
+                            LOG.warn("ignore rmq msg-{}", msg);
+                            return;
+                        }
+
+                        LOG.info("recv rmq msg-{}", msg);
                         ByteBuffer packet = ByteBuffer.wrap(msg.getBody());
                         packet.position(4);
                         int v = packet.getShort();
                         packet.rewind();
                         InsPacket ins = RMQGroupChannel.this.codec(v).decode(packet);
-                        LOG.info("read packet {}", ins);
+                        LOG.info("read packet-{}", ins);
                         // TODO miss packet
                         if (!receive(ins)) LOG.info("discard {}", ins);
                     } catch (Exception e) {
@@ -149,19 +179,30 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         consumer.start();
     }
 
+    protected int produceRetryTimes() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_P_RETRY_TIMES, "3");
+    }
+
     public void startProducer() throws Exception {
         producer = new DefaultMQProducer(name());
         producer.setNamesrvAddr(getNamesrvAddr());
-        producer.setRetryTimesWhenSendFailed(3);
+        producer.setRetryTimesWhenSendFailed(produceRetryTimes());
         producer.setVipChannelEnabled(false);
         producer.start();
-        producer.createTopic(topicKey(), name(), topicQueueNum());
+        producer.createTopic(topicKey(), topic(), topicQueueNum());
+    }
+
+    protected String topic() {
+        return name();
     }
 
     @Override
     public void close() throws IOException {
         producer.shutdown();
         consumer.shutdown();
+        // TODO 测试时发现这个线程偶尔没停止
+        consumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getPullMessageService().shutdown(true);
+        LOG.warn("rmq stop!");
         super.close();
     }
 
@@ -181,7 +222,7 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
                 send(unicast, pf);
             }
         }
-        LOG.info("write packet {}", packet);
+        LOG.info("write packet-{}", packet);
     }
 
     private void send(Message msg, PacketFuture pf) throws Exception {

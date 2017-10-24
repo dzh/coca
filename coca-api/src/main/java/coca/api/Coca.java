@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -58,9 +59,9 @@ public class Coca implements Closeable, CocaConst {
 
     static final Logger LOG = LoggerFactory.getLogger(Coca.class);
 
-    private Map<String, CaStack<String, ?>> stacks = new ConcurrentHashMap<>(8);
+    protected Map<String, CaStack<String, ?>> stacks = new ConcurrentHashMap<>(8);
 
-    private Co co;
+    protected Co co;
 
     private Thread subT;
 
@@ -169,15 +170,15 @@ public class Coca implements Closeable, CocaConst {
      *            {@link CocaListener}
      * @return
      * @throws CoException
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
     public <V> CaStack<String, V> withStack(String name, List<Ca<String, V>> ca, StackListener... listeners) throws CoException {
         if (stacks.containsKey(name)) {
             stacks.get(name).close();
-        } else {
-            co.join(name); // join
         }
 
-        CaStack<String, V> stack = StackManager.newStack(name);// TODO
+        CaStack<String, V> stack = StackManager.newStack(name);// TODO config
         for (int i = ca.size() - 1; i >= 0; i--)
             stack.push(ca.get(i));
         for (StackListener l : listeners) {
@@ -188,7 +189,17 @@ public class Coca implements Closeable, CocaConst {
         }
 
         stacks.put(name, stack);
-        LOG.info("{} newStack {}", this.name, name);
+
+        try {
+            co.join(name).get();  // join
+            LOG.info("{} withStack {} succ!", this.name, name);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error(e.getMessage(), e);
+
+            stacks.remove(name).close();
+            LOG.info("{} withStack {} fail!", this.name, name);
+        }
+
         return stack;
     }
 
