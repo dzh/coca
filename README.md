@@ -82,7 +82,9 @@ Co-Cache 协同缓存框架
     - jdk9
 
 ## 性能测试
-
+- [Co稳定性测试](coca-co/src/test/java/coca/co/TestCoLocal.java)
+- [Redis测试](coca-demo/src/main/java/coca/demo/benchmark/redis/CocaRedisBenchmark.java)
+- [RMQ测试](coca-demo/src/main/java/coca/demo/benchmark/rmq/CocaRMQBenchmark.java)
 
 ## 文档链接
 - [源码说明](doc/coca_project.md)
@@ -93,6 +95,9 @@ Co-Cache 协同缓存框架
 - 组消息丢失，手工补救方式
 - 发布1.0.0 传到maven
 - 发布0.0.1 ->jdk7 传到maven
+- Co监控(发送指令数/s，接收指令数/s) -> 日志
+- AckCoIns
+- 实现PUB_TIMEOUT,ACK_TIMEOUT,ACK_SUCC,ACK_FAIL更新InsFuture
 
 
 

@@ -13,7 +13,11 @@ import coca.co.io.channel.PacketResult;
  */
 public class InsFuture extends BasicFuture<InsResult> {
 
-    private final CoIns<?> pub;
+    private CoIns<?> pub;
+
+    public InsFuture() {
+        super();
+    }
 
     public InsFuture(CoIns<?> pub) {
         this.pub = pub;
@@ -42,12 +46,11 @@ public class InsFuture extends BasicFuture<InsResult> {
     }
 
     @Override
-    public InsResult change(Object result) {
+    public void change(Object result) {
         if (result instanceof PacketResult) {
             result(new InsResult(
                     ((PacketResult) result).st() == PacketResult.IOSt.SEND_SUCC ? InsResult.InsSt.PUB_SUCC : InsResult.InsSt.PUB_FAIL));
         }
-        return null;
     }
 
 }

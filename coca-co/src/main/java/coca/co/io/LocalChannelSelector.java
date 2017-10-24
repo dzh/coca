@@ -5,6 +5,7 @@ package coca.co.io;
 
 import coca.co.io.channel.GroupChannel;
 import coca.co.io.channel.PacketFuture;
+import coca.co.io.channel.PacketResult;
 
 /**
  * For Test
@@ -32,7 +33,8 @@ public class LocalChannelSelector extends GroupChannelSelector {
 
         @Override
         protected void writeImpl(PacketFuture pf) throws Exception {
-            receive(pf.send());
+            if (receive(pf.send())) pf.result(new PacketResult(PacketResult.IOSt.SEND_SUCC));
+            else pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
         }
 
     }

@@ -47,13 +47,14 @@ public class HeartbeatActor extends BasicActor {
      */
     @Override
     public void submit(CoIns<?> ins) {
-        LOG.info("{} {} submit {}", io.co(), name(), ins);
+        LOG.debug("{} {} submit {}", io.co(), name(), ins);
         ES.submit(new Runnable() {
 
             @Override
             public void run() {
                 try {
                     Co co = io.co();
+                    if (co.equals(ins.from())) return; // ignore self-HEARTBEAT
                     CoGroup g = co.group(ins.toGroup().name(), true);
                     LOG.info("join before {}", g);
                     g.join(ins.from());

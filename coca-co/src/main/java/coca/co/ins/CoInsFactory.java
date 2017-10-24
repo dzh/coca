@@ -4,6 +4,7 @@
 package coca.co.ins;
 
 import coca.co.ins.CoIns.Ins;
+import coca.co.util.IDUtil;
 
 /**
  * @author dzh
@@ -15,11 +16,20 @@ public class CoInsFactory {
     public CoInsFactory() {}
 
     public CoIns<?> newIns(CoIns.Ins ins) {
+        return newIns(ins, true);
+    }
+
+    public CoIns<?> newIns(CoIns.Ins ins, boolean autoId) {
         if (ins == null) return VoidCoIns.VOID;
 
         CoIns<?> coIns = isInnerIns(ins) ? innerIns(ins) : customIns(ins);
 
-        return coIns == null ? defaultIns(ins) : coIns;
+        coIns = coIns == null ? defaultIns(ins) : coIns;
+        return autoId ? coIns.id(autoId()) : coIns;
+    }
+
+    protected String autoId() {
+        return IDUtil.uuid();
     }
 
     protected CoIns<?> innerIns(Ins ins) {
@@ -63,7 +73,7 @@ public class CoInsFactory {
      * @return
      */
     public final CoIns<String> newJoin(String name, String id) {
-        return new TextCoIns(Ins.JOIN).data(toTextIns(name, id));
+        return ((TextCoIns) newIns(Ins.JOIN)).data(toTextIns(name, id));
     }
 
     /**
@@ -75,7 +85,7 @@ public class CoInsFactory {
      * @return
      */
     public final CoIns<String> newQuit(String name, String id) {
-        return new TextCoIns(Ins.QUIT).data(toTextIns(name, id));
+        return ((TextCoIns) newIns(Ins.QUIT)).data(toTextIns(name, id));
     }
 
     /**
@@ -87,7 +97,7 @@ public class CoInsFactory {
      * @return
      */
     public final CoIns<String> newHeartbeat(String name, String id) {
-        return new TextCoIns(Ins.HEARTBEAT).data(toTextIns(name, id));
+        return ((TextCoIns) newIns(Ins.HEARTBEAT)).data(toTextIns(name, id));
     }
 
     protected String toTextIns(String data, String... others) {

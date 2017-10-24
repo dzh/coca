@@ -10,7 +10,6 @@ import java.util.List;
 import coca.co.Co;
 import coca.co.CoGroup;
 import coca.co.ins.fmt.InsFormat;
-import coca.co.util.IDUtil;
 
 /**
  * @author dzh
@@ -36,12 +35,22 @@ public class BasicCoIns<T> implements CoIns<T> {
     private long ttl = TTL_NEVER_TIMEOUT;
 
     public BasicCoIns(Ins ins) {
-        this(IDUtil.uuid());
         this.ins = ins;
     }
 
     public BasicCoIns(String id) {
         this.id = id;
+    }
+
+    public BasicCoIns(CoIns<?> ins) {
+        this.id = ins.id();
+        this.cntl = ins.cntl();
+        this.codec = ins.codec();
+        this.from = ins.from();
+        this.ins = ins.ins();
+        this.toCo = ins.toCo();
+        this.toGroup = ins.toGroup();
+        this.ttl = ins.ttl();
     }
 
     @Override

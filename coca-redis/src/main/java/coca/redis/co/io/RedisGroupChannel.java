@@ -117,25 +117,25 @@ public class RedisGroupChannel extends GroupChannel implements RedisConst {
         if (isSingle()) {
             config.useSingleServer().setAddress(coConf.get(P_CO_REDIS_ADDR, "redis://127.0.0.1:6379"));
         }
-
         // cluster
-        if (isCluster()) {
+        else if (isCluster()) {
             String[] addrList = coConf.get(P_CO_REDIS_CLUSTER_ADDR, "redis://127.0.0.1:7000").split("\\s+");
             config.useClusterServers().setScanInterval(selector.io().co().conf().getInt(P_CO_REDIS_CLUSTER_SCAN_INTERVAL, "2000"))
                     .addNodeAddress(addrList);
         }
         // sentinel
-        if (isSentinel()) {
+        else if (isSentinel()) {
             String masterName = coConf.get(P_CO_REDIS_SENTINEL_MASTER_NAME, "mymaster");
             String[] addrList = coConf.get(P_CO_REDIS_SENTINEL_ADDR, "redis://127.0.0.1:26389").split("\\s+");
             config.useSentinelServers().setMasterName(masterName).addSentinelAddress(addrList);
         }
-
         // master-slave
-        if (isMasterSlave()) {
+        else if (isMasterSlave()) {
             String addrMaster = coConf.get(P_CO_REDIS_MASTER_ADDR, "redis://127.0.0.1:6379");
             String[] addrSlave = coConf.get(P_CO_REDIS_SLAVE_ADDR, "redis://127.0.0.1:6389").split("\\s+");
             config.useMasterSlaveServers().setMasterAddress(addrMaster).addSlaveAddress(addrSlave);
+        } else {
+            config.useSingleServer().setAddress(coConf.get(P_CO_REDIS_ADDR, "redis://127.0.0.1:6379"));
         }
         return config;
     }

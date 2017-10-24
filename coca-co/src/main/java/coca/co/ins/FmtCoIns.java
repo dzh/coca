@@ -19,12 +19,13 @@ public class FmtCoIns<T> extends BasicCoIns<T> {
         this.format = ins.format();
     }
 
+    public FmtCoIns(CoIns<?> ins) {
+        super(ins);
+        this.format = ins.ins().format();
+    }
+
     public String format() {
         return this.format;
     }
 
-    public FmtCoIns<T> format(String fmt) {
-        this.format = fmt;
-        return this;
-    }
 }

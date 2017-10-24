@@ -16,7 +16,6 @@ import coca.co.Co;
 import coca.co.init.CoInit;
 import coca.co.ins.CoIns;
 import coca.co.ins.CoIns.Ins;
-import coca.co.ins.TextCoIns;
 
 /**
  * @author dzh
@@ -41,7 +40,9 @@ public class TestRedisCo {
             co1.join("co_test");
 
             // co1 pub
-            CoIns<?> ins = (TextCoIns) new TextCoIns(new Ins(2000, "test1", "nil")).from(co1).to(co1.group("co_test", true));
+            // CoIns<?> ins = new TextCoIns(new Ins(2000, "test1",
+            // "nil")).id(IDUtil.uuid()).from(co1).to(co1.group("co_test", true));
+            CoIns<?> ins = co1.insFactory().newIns(new Ins(2000, "test1", "nil")).from(co1).to(co1.group("co_test", true));
             co1.pub(ins);
 
             ins = co1.sub(5, TimeUnit.SECONDS);

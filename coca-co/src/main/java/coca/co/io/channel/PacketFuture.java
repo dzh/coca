@@ -48,9 +48,6 @@ public class PacketFuture extends BasicFuture<PacketResult> {
     }
 
     @Override
-    public PacketResult change(Object obj) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public void change(Object obj) {}
 
 }

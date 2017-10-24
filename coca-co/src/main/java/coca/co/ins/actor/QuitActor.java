@@ -58,7 +58,6 @@ public class QuitActor extends BasicActor {
                 Optional.<CoGroup> ofNullable(g).ifPresent(group -> group.quit(ins.from()));
                 LOG.info("quit after {}", g);
             }
-
         });
     }
 

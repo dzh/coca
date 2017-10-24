@@ -16,4 +16,8 @@ public class ByteBufferCoIns extends FmtCoIns<ByteBuffer> {
         super(ins);
     }
 
+    public ByteBufferCoIns(CoIns<?> ins) {
+        super(ins);
+    }
+
 }

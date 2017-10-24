@@ -122,7 +122,7 @@ public class BasicCo implements Co {
                 try {
                     Co co = BasicCo.this;
                     //
-                    int tick = conf.getInt(CoConst.P_CO_HEARTBEAT_TICK, "3000");
+                    int tick = conf.getInt(CoConst.P_CO_HEARTBEAT_TICK, "6000");
                     Thread.sleep(tick);
                     // pub heartbeat
                     for (Entry<String, CoGroup> e : groups.entrySet()) {
@@ -202,8 +202,9 @@ public class BasicCo implements Co {
     @Override
     public CoFuture<InsResult> quit(String name) throws CoException {
         if (isClosed()) throw new CoException("Co closed!");
-        CoGroup g = group(name, false);
-        if (g == null) throw new CoException("Quit failed from group:" + name);
+        // CoGroup g = group(name, false);
+        // if (g == null) throw new CoException("Quit failed from group:" + name);
+        CoGroup g = new BasicGroup(name);
         CoIns<String> ins = insFactory.newQuit(name, id()).from(this).to(g);
         return pub(ins);
     }

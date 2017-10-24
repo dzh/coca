@@ -17,9 +17,8 @@ public interface CoFuture<V> extends Future<V> {
     /**
      * @param result
      *            parent future's result
-     * @return
      */
-    V change(Object result);
+    void change(Object result);
 
     /**
      * 

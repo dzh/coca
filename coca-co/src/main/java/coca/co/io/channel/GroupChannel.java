@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coca.co.ins.InsFuture;
 import coca.co.io.ChannelSelector;
 import coca.co.io.packet.InsPacket;
 import coca.co.io.packet.InsPacketException;
@@ -108,6 +109,7 @@ public abstract class GroupChannel implements CoChannel {
         if (!isValidPacket(packet)) throw new InsPacketException("packet is invalid");
 
         PacketFuture pf = new PacketFuture(packet);
+        pf.next(new InsFuture(packet.ins())); // TODO
         try {
             if (wq.offer(pf, 2, TimeUnit.SECONDS)) {
                 // TODO ack
@@ -142,7 +144,7 @@ public abstract class GroupChannel implements CoChannel {
                     if (pf != null) pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
                 }
             }
-            LOG.info("{} exitd!", getName());
+            LOG.info("{} exit!", getName());
         }
     }
 

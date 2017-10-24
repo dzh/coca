@@ -22,7 +22,6 @@ import coca.co.CoException;
 import coca.co.CoFuture;
 import coca.co.ins.ByteBufferCoIns;
 import coca.co.ins.CoIns;
-import coca.co.ins.FmtCoIns;
 import coca.co.ins.InsFuture;
 import coca.co.ins.InsResult;
 import coca.co.ins.VoidCoIns;
@@ -81,7 +80,7 @@ public class BasicIO implements CoIO {
     @Override
     public CoFuture<InsResult> pub(CoIns<?> ins) throws CoException {
         if (ins == null) throw new CoException("ins is nil");
-        LOG.info("pub {}", ins);
+        LOG.debug("pub {}", ins);
 
         if (selector == null) throw new CoException("pub but selector is nil");
         CoChannel ch = selector.select(ins);
@@ -89,7 +88,7 @@ public class BasicIO implements CoIO {
         if (ch.isOpen()) {
             // TODO ins_ack
             try {
-                return (InsFuture) ch.write(packet(ins)).next(new InsFuture(ins)).next();
+                return (InsFuture) ch.write(packet(ins)).next();
             } catch (CoChannelException e) {
                 LOG.error(e.getMessage(), e);
                 throw new CoException(e);
@@ -122,44 +121,29 @@ public class BasicIO implements CoIO {
         packet.version((short) 1);// TODO
         packet.magic(InsPacket.M);
         packet.ins(encodeCoIns(ins));
-
-        // debug
-        // if (packet.ins().ins().equals(new Ins(1025, "", ""))) {
-        // LOG.debug("{}", ins);
-        // }
         return packet;
     }
 
     private CoIns<?> decodeCoIns(ByteBufferCoIns ins) {
         Objects.requireNonNull(ins);
         @SuppressWarnings("unchecked")
-        CoIns<Object> copy = (CoIns<Object>) co.insFactory().newIns(ins.ins());
+        CoIns<Object> copy = (CoIns<Object>) co.insFactory().newIns(ins.ins(), false);
         copy.id(ins.id());
         copy.cntl(ins.cntl());
         copy.from(ins.from());
         copy.codec(ins.codec());
         if (ins.data() != null) copy.data(codec(ins.codec()).decode(ins.data().array()));
-        LOG.info("sub {}", copy);
-        // debug
-        // if (ins.ins().equals(new Ins(1025, "", ""))) {
-        // LOG.debug("{}", ins);
-        // }
+        LOG.debug("sub {}", copy);
         return copy;
     }
 
     // TODO clone
     private ByteBufferCoIns encodeCoIns(CoIns<?> ins) {
         Objects.requireNonNull(ins);
-        ByteBufferCoIns copy = new ByteBufferCoIns(ins.ins());
-        copy.from(ins.from());
-        copy.codec(ins.codec());
-        if (ins instanceof FmtCoIns) copy.format(((FmtCoIns<?>) ins).format());
-        copy.to(ins.toGroup());
-        copy.to(ins.toCo().toArray(new Co[ins.toCo().size()]));
+        ByteBufferCoIns copy = new ByteBufferCoIns(ins);
 
         if (ins.data() != null) {
             InsCodec codec = codec(ins.codec());
-            ins.codec(codec.name());
             copy.data(ByteBuffer.wrap(codec.encode(ins.data())));
         }
         return copy;
