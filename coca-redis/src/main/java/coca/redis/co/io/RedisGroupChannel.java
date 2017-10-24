@@ -58,10 +58,12 @@ public class RedisGroupChannel extends GroupChannel implements RedisConst {
     }
 
     private String groupTopic() {
+        LOG.info("groupTopic-{}", name());
         return name();
     }
 
     private String selfTopic() {
+        LOG.info("selfTopic-{}", selector.io().co().hashCode());
         return String.valueOf(selector.io().co().hashCode());
     }
 

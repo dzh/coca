@@ -28,12 +28,12 @@ import coca.co.util.IDUtil;
 /**
  * 
  * <pre>
- * For Example:
+ * For example:
  * {@code
- *      Co co = BasicCo.newCo(Map); // create Co
- *      CoIns ins = co.insFactory.newIns(InsConst.JOIN);  // create CoIns
- *      ins.from(co).toGroup(group("name")).data("name id"); // fill ins's data
- *      co.pub(ins); // publish ins
+ * Co co = BasicCo.newCo(Map); // create Co
+ * CoIns ins = co.insFactory.newIns(InsConst.JOIN);  // create CoIns
+ * ins.from(co).toGroup(group("name")).data("name id"); // fill ins's data
+ * co.pub(ins); // publish ins
  * }
  * </pre>
  * 

@@ -98,6 +98,7 @@ Co-Cache 协同缓存框架
 - Co监控(发送指令数/s，接收指令数/s) -> 日志
 - AckCoIns
 - 实现PUB_TIMEOUT,ACK_TIMEOUT,ACK_SUCC,ACK_FAIL更新InsFuture
+- ca写相同值时的处理
 
 
 

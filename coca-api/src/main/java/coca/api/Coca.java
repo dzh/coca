@@ -37,6 +37,19 @@ import coca.co.ins.CoIns.Ins;
 import coca.co.ins.VoidCoIns;
 
 /**
+ * <pre>
+ * For example:
+ * {@code
+ * Coca coca = Coca.newCoca("coca",confMap);
+ * coca.withStack("stack",caList,listener...);
+ * coca.stack("stack").read(key);
+ * ...
+ * coca.stack("stack").write(val);
+ * ...
+ * coca.close();
+ * }
+ * </pre>
+ * 
  * @author dzh
  * @date Nov 12, 2016 10:44:46 PM
  * @since 0.0.1
@@ -57,11 +70,11 @@ public class Coca implements Closeable, CocaConst {
 
     private String name;
 
-    private Coca() {
+    public Coca() {
         this("coca");
     }
 
-    private Coca(String name) {
+    public Coca(String name) {
         this.name = name;
     }
 
@@ -73,10 +86,10 @@ public class Coca implements Closeable, CocaConst {
         return name;
     }
 
-    protected void init(Map<String, String> conf) {
+    public void init(Map<String, String> conf) {
         // Ins thread pool
         insT = Executors.newFixedThreadPool(Integer
-                .parseInt(conf.getOrDefault(P_COCA_HANDLER_THREDNUM, String.valueOf(Runtime.getRuntime().availableProcessors() * 6))));
+                .parseInt(conf.getOrDefault(P_COCA_HANDLER_THREDNUM, String.valueOf(Runtime.getRuntime().availableProcessors() * 10))));
 
         // create Co
         co = initCo(conf);
@@ -96,7 +109,7 @@ public class Coca implements Closeable, CocaConst {
                     ins = co.sub(10, TimeUnit.SECONDS);
                     if (ins == VoidCoIns.VOID || ins == null) continue;
                     if (co.equals(ins.from())) {// ignore self ins TODO
-                        LOG.info("{} ignore self-ins {}", Coca.this, ins);
+                        LOG.debug("{} ignore self-ins {}", Coca.this, ins);
                         continue;
                     }
 
@@ -117,7 +130,7 @@ public class Coca implements Closeable, CocaConst {
         LOG.info("{} start", subT.getName());
     }
 
-    public InsHandler<?> customHandler(CoIns<?> coIns) {
+    protected InsHandler<?> customHandler(CoIns<?> coIns) {
         Ins ins = coIns.ins();
         if (ins.equals(CocaConst.EVICT)) return new EvictHandler((StackCoIns) coIns);
         return VoidHandler.VOID;
@@ -130,9 +143,7 @@ public class Coca implements Closeable, CocaConst {
      * @return
      */
     public static final Coca newCoca(Map<String, String> conf) {
-        Coca coca = new Coca();
-        coca.init(conf);
-        return coca;
+        return newCoca("coca", conf);
     }
 
     public static final Coca newCoca(String name, Map<String, String> conf) {

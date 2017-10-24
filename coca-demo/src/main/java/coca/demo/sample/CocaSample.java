@@ -7,15 +7,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coca.api.Coca;
 import coca.api.ca.CocaListener;
+import coca.api.handler.InsHandler;
 import coca.ca.Ca;
 import coca.ca.CaValue;
+import coca.ca.stack.StackEvent;
 import coca.co.CoException;
+import coca.co.ins.CoIns;
 import coca.guava.ca.CaGuava;
 import coca.redis.ca.CaRedis;
 
@@ -37,6 +41,10 @@ public class CocaSample {
 
     public final String stackName;
 
+    private AtomicLong pubCount = new AtomicLong(0);
+
+    private AtomicLong subCount = new AtomicLong(0);
+
     // private volatile boolean closed = false;
 
     public CocaSample(String name, String stack) {
@@ -44,12 +52,28 @@ public class CocaSample {
         this.stackName = stack;
     }
 
+    private final Coca newCoca(String name, Map<String, String> conf) {
+        Coca coca = new Coca(name) {
+            protected InsHandler<?> customHandler(CoIns<?> coIns) {
+                subCount.incrementAndGet();
+                return super.customHandler(coIns);
+            }
+        };
+        coca.init(conf);
+        return coca;
+    }
+
     public boolean initCoca(Map<String, String> conf) {
-        coca = Coca.newCoca(appName, conf);
+        coca = newCoca(appName, conf);
         Ca<String, Integer> guava = new CaGuava<String, Integer>("CocaSample-Guava");
         Ca<String, Integer> redis = new CaRedis<String, Integer>("CocaSample-Redis");
         try {
-            coca.withStack(stackName, Arrays.asList(guava, redis), new CocaListener());
+            coca.withStack(stackName, Arrays.asList(guava, redis), new CocaListener() {
+                protected void pubEvict(StackEvent evnt) {
+                    pubCount.incrementAndGet();
+                    super.pubEvict(evnt);
+                }
+            });
         } catch (CoException e) {
             LOG.error(e.getMessage(), e);
             return false;
@@ -61,19 +85,19 @@ public class CocaSample {
         key = sync ? "coca.share." + key : "coca." + appName + "." + key;
         CaValue<String, Integer> val = CaValue.newVal(key, value).sync(sync).ttl(ttl);
         coca.<Integer> stack(stackName).write(val);
-        LOG.info("writeKey {} {}, {}", appName, key, val);
+        LOG.debug("writeKey {} {}, {}", appName, key, val);
     }
 
     public void readShareKey(String key) {
         key = "coca.share." + key;
         CaValue<String, Integer> val = coca.<Integer> stack(stackName).read(key);
-        LOG.info("readKey {} {}, {}", appName, key, val);
+        LOG.debug("readKey {} {}, {}", appName, key, val);
     }
 
     public void readSelfKey(String key) {
         key = "coca." + appName + "." + key;
         CaValue<String, Integer> val = coca.<Integer> stack(stackName).peek().read(key);
-        LOG.info("readKey {} {}, {}", appName, key, val);
+        LOG.debug("readKey {} {}, {}", appName, key, val);
     }
 
     // static int[] SelfKey = { 0, 1, 2, 3, 4 }; // Not sync keys' suffix
@@ -129,6 +153,15 @@ public class CocaSample {
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }
+        LOG.info("{} pub-{} sub-{}", coca.name(), countPub(), countSub());
+    }
+
+    public long countPub() {
+        return pubCount.get();
+    }
+
+    public long countSub() {
+        return subCount.get();
     }
 
 }

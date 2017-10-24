@@ -30,9 +30,8 @@ public class SampleMain {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        // load log4j2.xml
         // System.setProperty("log4j.configurationFile", "");
-        Configurator.initialize("SampleMain", Thread.currentThread().getContextClassLoader(), "sample-log4j.xml");
+        Configurator.initialize("SampleMain", Thread.currentThread().getContextClassLoader(), "simple-log4j2.xml");
 
         // initialize coca instance
         CocaSample app1 = new CocaSample("app1", "syncGroup");

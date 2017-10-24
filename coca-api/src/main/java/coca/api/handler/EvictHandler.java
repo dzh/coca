@@ -32,7 +32,7 @@ public class EvictHandler extends InsHandler<String> {
             CaValue<String, Object> val = CaValue.newVal(data.get(CocaConst.F_key), null);
             ca.write(val);
 
-            LOG.info("{} {} evict {}", coca(), ca, ins);
+            LOG.debug("{} {} evict {}", coca(), ca, ins);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
