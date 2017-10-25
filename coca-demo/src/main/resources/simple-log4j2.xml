@@ -11,7 +11,7 @@
 		<Logger name="coca.demo" level="debug" additivity="false">
 			<appender-ref ref="console" />
 		</Logger>
-		<Logger name="coca.api" level="debug" additivity="false">
+		<Logger name="coca.api" level="info" additivity="false">
 			<appender-ref ref="console" />
 		</Logger>
 		<Logger name="coca.ca" level="error" additivity="false">

@@ -8,9 +8,14 @@ coco-rmq
 - co.rmq.namesrv = 127.0.0.1:9876
 - co.rmq.topic.queuenum = 8
 - co.rmq.topic.key = DefaultCluster
-- co.rmq.c.message.batch.maxsize = 10
+- co.rmq.p.retry.times = 3
+- co.rmq.c.message.batch.maxsize = 100
 - co.rmq.c.thread.max = 64
 - co.rmq.c.thread.min = 20
-- co.rmq.p.retry.times = 3
-- co.rmq.c.message.ignore.timeout = 30
+- co.rmq.c.message.ignore.timeout = 30 //second
+- co.rmq.c.pull.threshold = 10000
+- co.rmq.c.timeout = 5 //minute
+- co.rmq.c.max.reconsume.times = 3 
+- co.rmq.c.max.span = 10000
+
 

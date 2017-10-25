@@ -19,8 +19,10 @@ public interface RMQConst {
     String P_CO_RMQ_C_TIMEOUT = "co.rmq.c.timeout";
     String P_CO_RMQ_C_THREAD_MAX = "co.rmq.c.thread.max";
     String P_CO_RMQ_C_THREAD_MIN = "co.rmq.c.thread.min";
-
     String P_CO_RMQ_C_MESSAGE_IGNORE_TIMEOUT = "co.rmq.c.message.ignore.timeout"; // second
+    String P_CO_RMQ_C_PULL_THRESHOLD = "co.rmq.c.pull.threshold";
+    String P_CO_RMQ_C_MAX_RECONSUME_TIMES = "co.rmq.c.max.reconsume.times";
+    String P_CO_RMQ_C_MAX_SPAN = "co.rmq.c.max.span";
 
     // produce
     String P_CO_RMQ_P_RETRY_TIMES = "co.rmq.p.retry.times";

@@ -84,57 +84,31 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         return selector.io().co().conf().get(P_CO_RMQ_TOPIC_KEY, "DefaultCluster");
     }
 
-    protected int topicQueueNum() {
-        return selector.io().co().conf().getInt(P_CO_RMQ_TOPIC_QUEUENUM, "8");
-    }
-
-    protected int consumeMessageBatchMaxSize() {
-        return selector.io().co().conf().getInt(P_CO_RMQ_C_MESSAGE_BATCH_MAXSIZE, "10");
-    }
-
-    protected int consumeThreadMax() {
-        return selector.io().co().conf().getInt(P_CO_RMQ_C_THREAD_MAX, "64");
-    }
-
-    protected int consumeThreadMin() {
-        return selector.io().co().conf().getInt(P_CO_RMQ_C_THREAD_MIN, "20");
-    }
-
-    protected int messageIgnoreTimeout() {
-        return selector.io().co().conf().getInt(P_CO_RMQ_C_MESSAGE_IGNORE_TIMEOUT, "30");
-    }
-
-    protected String consumeTimestamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        return sdf.format(new Date());
-    }
-
-    protected int consumeTimeout() {
-        return selector.io().co().conf().getInt(P_CO_RMQ_C_TIMEOUT, "15");
-    }
-
     public void startConsumer() throws Exception {
-        consumer = new DefaultMQPushConsumer(name() + "_" + consumeTimestamp());
+        consumer = new DefaultMQPushConsumer(consumerName());
         consumer.setNamesrvAddr(getNamesrvAddr());
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_TIMESTAMP);
         consumer.setConsumeTimestamp(consumeTimestamp());
-        // consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         consumer.setConsumeMessageBatchMaxSize(consumeMessageBatchMaxSize());
         consumer.setConsumeTimeout(consumeTimeout());
-        consumer.setMessageModel(MessageModel.BROADCASTING);
         consumer.subscribe(topic(), name() + " || " + String.valueOf(selector.io().co().hashCode()));// TODO
+        consumer.setMessageModel(MessageModel.BROADCASTING);
         consumer.setVipChannelEnabled(false);
         consumer.setConsumeThreadMax(consumeThreadMax());
         consumer.setConsumeThreadMin(consumeThreadMin());
+        consumer.setInstanceName(selector.io().co().id());
+        consumer.setPullThresholdForQueue(consumePullThreshold());
+        consumer.setConsumeConcurrentlyMaxSpan(consumeConcurrentlyMaxSpan());// 2000
+        consumer.setMaxReconsumeTimes(consumeMaxReconsumeTimes()); // 16
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
                 int ignoreTime = messageIgnoreTimeout() * 1000;
-                msgs.forEach(msg -> {
+                for (MessageExt msg : msgs) {
                     try {
                         if ((System.currentTimeMillis() - msg.getBornTimestamp()) > ignoreTime) {
-                            LOG.warn("ignore rmq msg-{}", msg);
-                            return;
+                            LOG.warn("discard rmq timeout msg-{}", msg);
+                            continue;
                         }
 
                         LOG.info("recv rmq msg-{}", msg);
@@ -144,12 +118,17 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
                         packet.rewind();
                         InsPacket ins = RMQGroupChannel.this.codec(v).decode(packet);
                         LOG.info("read packet-{}", ins);
-                        // TODO miss packet
-                        if (!receive(ins)) LOG.info("discard {}", ins);
+
+                        if (!receive(ins)) return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                     } catch (Exception e) {
-                        LOG.info(e.getMessage(), e);// TODO miss
+                        LOG.info(e.getMessage(), e);
+                        if (msg.getReconsumeTimes() == consumer.getMaxReconsumeTimes()) {
+                            LOG.warn("discard rmq reconsume msg-{}", msg);
+                            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                        }
+                        return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                     }
-                });
+                }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
@@ -165,10 +144,9 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         // packet.rewind();
         // InsPacket ins = RMQGroupChannel.this.codec(v).decode(packet);
         // LOG.info("read packet {}", ins);
-        // // TODO miss packet
         // if (!RMQGroupChannel.this.rq.offer(ins)) LOG.info("discard {}", ins);
         // } catch (Exception e) {
-        // LOG.info("miss-" + e.getMessage(), e);// TODO miss
+        // LOG.info("miss-" + e.getMessage(), e);
         // }
         // });
         // return ConsumeOrderlyStatus.SUCCESS;
@@ -184,7 +162,7 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
     }
 
     public void startProducer() throws Exception {
-        producer = new DefaultMQProducer(name());
+        producer = new DefaultMQProducer(producerName());
         producer.setNamesrvAddr(getNamesrvAddr());
         producer.setRetryTimesWhenSendFailed(produceRetryTimes());
         producer.setVipChannelEnabled(false);
@@ -198,17 +176,19 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
 
     @Override
     public void close() throws IOException {
+        super.close();
         producer.shutdown();
         consumer.shutdown();
+        LOG.info("{} close!", name());
         // TODO 测试时发现这个线程偶尔没停止
-        consumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getPullMessageService().shutdown(true);
-        LOG.warn("rmq stop!");
-        super.close();
+        // consumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getPullMessageService().shutdown(true);
     }
 
     @Override
     protected void writeImpl(PacketFuture pf) throws Exception {
         InsPacket packet = pf.send();
+        LOG.info("write packet-{}", packet);
+
         packet.type(InsPacket.Type.GROUP.ordinal());
         ByteBuffer bytes = codec(packet.version()).encode(packet);
         String topic = packet.ins().toGroup().name();
@@ -222,7 +202,6 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
                 send(unicast, pf);
             }
         }
-        LOG.info("write packet-{}", packet);
     }
 
     private void send(Message msg, PacketFuture pf) throws Exception {
@@ -239,6 +218,56 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
                 pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
             }
         });
+    }
+
+    protected int topicQueueNum() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_TOPIC_QUEUENUM, "8");
+    }
+
+    protected int consumeMessageBatchMaxSize() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_MESSAGE_BATCH_MAXSIZE, "200");
+    }
+
+    protected int consumeThreadMax() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_THREAD_MAX, String.valueOf(Runtime.getRuntime().availableProcessors() * 20));
+    }
+
+    protected int consumePullThreshold() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_PULL_THRESHOLD, "10000");
+    }
+
+    protected int consumeThreadMin() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_THREAD_MIN, String.valueOf(Runtime.getRuntime().availableProcessors() * 5));
+    }
+
+    protected int messageIgnoreTimeout() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_MESSAGE_IGNORE_TIMEOUT, "30");
+    }
+
+    protected String consumeTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        return sdf.format(new Date());
+    }
+
+    protected int consumeTimeout() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_TIMEOUT, "5");
+    }
+
+    protected int consumeMaxReconsumeTimes() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_MAX_RECONSUME_TIMES, "3");
+    }
+
+    protected int consumeConcurrentlyMaxSpan() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_MAX_SPAN, "10000");
+    }
+
+    private String consumerName() {
+        // return selector.io().co().id().replaceAll("[_.-]", "");
+        return name();// + String.valueOf(selector.io().co().hashCode());
+    }
+
+    private String producerName() {
+        return name();// + String.valueOf(selector.io().co().hashCode());
     }
 
 }

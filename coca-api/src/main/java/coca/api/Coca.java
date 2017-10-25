@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class Coca implements Closeable, CocaConst {
 
     private Thread subT;
 
-    private ExecutorService insT;
+    private ThreadPoolExecutor insT;
 
     private CountDownLatch closeLatch;
 
@@ -88,10 +88,10 @@ public class Coca implements Closeable, CocaConst {
     }
 
     public void init(Map<String, String> conf) {
+        int nThreads = Integer
+                .parseInt(conf.getOrDefault(P_COCA_HANDLER_THREDNUM, String.valueOf(Runtime.getRuntime().availableProcessors() * 10)));
         // Ins thread pool
-        insT = Executors.newFixedThreadPool(Integer
-                .parseInt(conf.getOrDefault(P_COCA_HANDLER_THREDNUM, String.valueOf(Runtime.getRuntime().availableProcessors() * 10))));
-
+        insT = new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         // create Co
         co = initCo(conf);
         if (co.isClosed()) throw new IllegalStateException("Co init failed!");
@@ -113,6 +113,10 @@ public class Coca implements Closeable, CocaConst {
                         LOG.debug("{} ignore self-ins {}", Coca.this, ins);
                         continue;
                     }
+
+                    // TODO
+                    // if (insT.getQueue().size() > 100000) {
+                    // }
 
                     insT.submit(customHandler(ins).coca(this));
                 } catch (InterruptedException e) {

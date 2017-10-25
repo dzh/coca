@@ -8,7 +8,10 @@
 	</Appenders>
 
 	<Loggers>
-		<Logger name="coca.demo" level="info" additivity="false">
+		<Logger name="coca.demo.benchmark" level="info" additivity="false">
+			<appender-ref ref="console" />
+		</Logger>
+		<Logger name="coca.demo.sample" level="warn" additivity="false">
 			<appender-ref ref="console" />
 		</Logger>
 		<Logger name="coca.api" level="info" additivity="false">
@@ -23,10 +26,10 @@
 		<Logger name="coca.guava" level="warn" additivity="false">
 			<appender-ref ref="console" />
 		</Logger>
-		<Logger name="coca.rmq" level="warn" additivity="false">
+		<Logger name="coca.rmq" level="error" additivity="false">
 			<appender-ref ref="console" />
 		</Logger>
-		<Root level="error">
+		<Root level="warn">
 			<appender-ref ref="console" />
 		</Root>
 	</Loggers>

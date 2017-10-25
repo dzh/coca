@@ -3,7 +3,6 @@
  */
 package coca.demo.benchmark.rmq;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,21 +45,20 @@ public class CocaRMQSub {
 
         long s0 = System.currentTimeMillis();
         while (true) {
-            if (sub.countSub() >= total && pubExit(sub)) {
+            if (sub.countSub() >= total) {
                 break;
             }
             LOG.info("total-{} sub-{}", total, sub.countSub());
-            Thread.sleep(1000L);
+            Thread.sleep(5000L);
         }
         long s1 = System.currentTimeMillis();
 
-        Thread.sleep(3000L);
         sub.close();
         LOG.info("sub-{} time-{}", sub.countSub() - warmCount, s1 - s0);
     }
 
-    public static boolean pubExit(CocaSample sub) {
-        return !new File(CocaRMQBenchmark.PubRunFlag).exists();
-    }
+    // public static boolean pubExit(CocaSample sub) {
+    // return !new File(CocaRMQBenchmark.PubRunFlag).exists();
+    // }
 
 }

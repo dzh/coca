@@ -85,19 +85,19 @@ public class CocaSample {
         key = sync ? "coca.share." + key : "coca." + appName + "." + key;
         CaValue<String, Integer> val = CaValue.newVal(key, value).sync(sync).ttl(ttl);
         coca.<Integer> stack(stackName).write(val);
-        LOG.debug("writeKey {} {}, {}", appName, key, val);
+        LOG.info("writeKey {} {}, {}", appName, key, val);
     }
 
     public void readShareKey(String key) {
         key = "coca.share." + key;
         CaValue<String, Integer> val = coca.<Integer> stack(stackName).read(key);
-        LOG.debug("readKey {} {}, {}", appName, key, val);
+        LOG.info("readKey {} {}, {}", appName, key, val);
     }
 
     public void readSelfKey(String key) {
         key = "coca." + appName + "." + key;
         CaValue<String, Integer> val = coca.<Integer> stack(stackName).peek().read(key);
-        LOG.debug("readKey {} {}, {}", appName, key, val);
+        LOG.info("readKey {} {}, {}", appName, key, val);
     }
 
     // static int[] SelfKey = { 0, 1, 2, 3, 4 }; // Not sync keys' suffix
