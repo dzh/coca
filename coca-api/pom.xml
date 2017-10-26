@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>coca-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<groupId>dzh.github.io</groupId>
+		<groupId>io.github.dzh</groupId>
 	</parent>
 	<artifactId>coca-api</artifactId>
 

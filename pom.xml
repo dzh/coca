@@ -6,11 +6,10 @@
 	<packaging>pom</packaging>
 	<url>https://github.com/dzh/coca</url>
 
-	<groupId>dzh.github.io</groupId>
 	<name>coca</name>
 	<description>Co-Cache Framework</description>
 	<scm>
-		<url>git@github.com:dzh/coca.git</url>
+		<url>https://github.com/dzh/coca.git</url>
 	</scm>
 	<issueManagement>
 		<url>https://github.com/dzh/coca/issues</url>
@@ -21,6 +20,91 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>maven2-release</id>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+				</snapshotRepository>
+				<repository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.0.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.10.4</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<quiet>true</quiet>
+								</configuration>
+							</execution>
+						</executions>
+						<configuration>
+							<tags>
+								<tag>
+									<name>date</name>
+									<placement>t</placement>
+									<head>creation class date</head>
+								</tag>
+								<tag>
+									<name>mutable</name>
+									<placement>t</placement>
+									<head>mutable object</head>
+								</tag>
+								<tag>
+									<name>ThreadSafe</name>
+									<placement>t</placement>
+									<head>class is thread safe</head>
+								</tag>
+							</tags>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<useAgent>true</useAgent>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>
@@ -111,4 +195,5 @@
 		<module>coca-demo</module>
 	</modules>
 
+	<groupId>io.github.dzh</groupId>
 </project>

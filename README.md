@@ -90,7 +90,6 @@ Co-Cache 协同缓存框架
 - [源码说明](doc/coca_project.md)
 
 ## TODO
-- 性能测试 验证稳定性
 - redis保证组消息可靠到达，使用日志+group实现重发机制
 - 组消息丢失，手工补救方式
 - 发布1.0.0 传到maven
@@ -98,7 +97,7 @@ Co-Cache 协同缓存框架
 - Co监控(发送指令数/s，接收指令数/s) -> 日志
 - AckCoIns
 - 实现PUB_TIMEOUT,ACK_TIMEOUT,ACK_SUCC,ACK_FAIL更新InsFuture
-- ca写相同值时的处理
+- ca写相同值时的优化处理
 
 
 
