@@ -10,11 +10,11 @@ import coca.co.ins.ByteBufferCoIns;
 /**
  * <pre>
  * Packet Binary Format([byte size]):
- * Packet -> Magic[4] + Version[2] + CNTL[8] + Type[4] + IDSize[1] + ID[] + CoInsSize[4] + CoIns[] + Hash[4]
- *                                                                                           |
- * CoIns  -> InsSize[2] + Ins[] + IDSize[1] + ID[] + CNTL[8] + TTL[8] + FromSize[1] + From[] + CodecSize[1] + Codec[] + DataSize[4] + Data[]
- *                         |
- * Ins    -> code[4] + nameSize[1] + name[] + formatSize[1] + format[]
+ * Packet -&gt; Magic[4] + Version[2] + CNTL[8] + Type[4] + IDSize[1] + ID[] + CoInsSize[4] + CoIns[] + Hash[4]
+ *                                                                                            |
+ * CoIns  -&gt; InsSize[2] + Ins[] + IDSize[1] + ID[] + CNTL[8] + TTL[8] + FromSize[1] + From[] + CodecSize[1] + Codec[] + DataSize[4] + Data[]
+ *                           |
+ * Ins    -&gt; code[4] + nameSize[1] + name[] + formatSize[1] + format[]
  * </pre>
  * 
  * <pre>

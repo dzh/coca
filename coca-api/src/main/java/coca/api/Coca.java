@@ -174,8 +174,6 @@ public class Coca implements Closeable, CocaConst {
      *            {@link CocaListener}
      * @return
      * @throws CoException
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public <V> CaStack<String, V> withStack(String name, List<Ca<String, V>> ca, StackListener... listeners) throws CoException {
         if (stacks.containsKey(name)) {

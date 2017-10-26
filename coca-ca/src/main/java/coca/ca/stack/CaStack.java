@@ -48,8 +48,10 @@ public interface CaStack<K, V> {
     int size();
 
     /**
-     * Top index is 0 </br>
+     * <pre>
+     * Top index is 0
      * Bottom index is size()-1
+     * </pre>
      * 
      * @param index
      * @return Ca at index location of stack

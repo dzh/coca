@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * TODO
- * TextIns formatted to Map<String,String>
+ * TextIns formatted to Map
  * 
  * @author dzh
  * @date Sep 6, 2017 2:27:57 PM

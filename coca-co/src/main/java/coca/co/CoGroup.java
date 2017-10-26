@@ -6,12 +6,10 @@ package coca.co;
 import java.util.Collection;
 
 /**
- * <p>
  * Co-Group Features:
  * <ul>
  * <li>sync CoIns in CoGroup</li>
  * </ul>
- * </p>
  * 
  * @author dzh
  * @date Nov 12, 2016 11:07:41 PM

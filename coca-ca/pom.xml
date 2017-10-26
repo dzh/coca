@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>io.github.dzh</groupId>
-		<artifactId>coca-parent</artifactId>
+		<artifactId>coca</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>coca-ca</artifactId>

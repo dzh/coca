@@ -45,6 +45,7 @@ public class IDUtil {
     }
 
     /**
+     * @param id
      * @return String
      */
     public static final String decode(String id) {

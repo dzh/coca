@@ -14,18 +14,13 @@ import coca.co.ins.VoidCoIns;
 import coca.co.io.CoIO;
 
 /**
- * <p>
  * Features:
  * <ul>
- * <li>Received {@link }</li>
+ * <li></li>
  * </ul>
- * </p>
  * 
  * For example:
  * 
- * <pre>
- * 
- * </pre>
  * 
  * @author dzh
  * @date Nov 14, 2016 1:09:39 PM
@@ -110,9 +105,11 @@ public interface Co extends Closeable {
      * @param timeout
      *            time to wait for a CoIns. if wait_msec=-1 then to wait
      *            forever until a CoIns received or throw CoException
-     * @param TimeUnit
+     * @param unit
+     *            TimeUnit
      * @return CoIns or {@link VoidCoIns#VOID} if timeout
      * @throws CoException
+     * @throws InterruptedException
      */
     CoIns<?> sub(long timeout, TimeUnit unit) throws CoException, InterruptedException;
 

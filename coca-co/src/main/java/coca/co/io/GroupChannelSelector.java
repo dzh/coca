@@ -56,7 +56,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
     }
 
     /**
-     * @throws
+     * @throws CoException
      */
     @Override
     public CoChannel select(CoIns<?> ins) throws CoException {

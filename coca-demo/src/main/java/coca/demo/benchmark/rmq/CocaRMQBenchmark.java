@@ -18,7 +18,7 @@ import coca.rmq.RMQConst;
 import coca.rmq.co.io.RMQChannelSelector;
 
 /**
- * Start order: CocaRMQSub -> CocaRMQBenchmark
+ * Start order: CocaRMQSub -&gt; CocaRMQBenchmark
  * 
  * 
  * @author dzh
