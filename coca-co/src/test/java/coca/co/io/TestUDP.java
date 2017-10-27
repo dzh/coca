@@ -26,7 +26,7 @@ public class TestUDP {
 
     @Before
     public void listenServer() throws IOException, InterruptedException {
-        DatagramSocket datagramSocket = new DatagramSocket(8080);
+        final DatagramSocket datagramSocket = new DatagramSocket(8080);
         new Thread() {
             public void run() {
                 try {
@@ -58,7 +58,8 @@ public class TestUDP {
         datagramSocket.send(packet);
         datagramSocket.close();
 
-        LOG.info("send ip-{} port-{} data-{}", packet.getAddress().getHostAddress(), packet.getPort(), new String(packet.getData(), "utf-8"));
+        LOG.info("send ip-{} port-{} data-{}", packet.getAddress().getHostAddress(), packet.getPort(),
+                new String(packet.getData(), "utf-8"));
     }
 
 }

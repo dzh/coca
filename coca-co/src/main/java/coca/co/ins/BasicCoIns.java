@@ -65,7 +65,7 @@ public class BasicCoIns<T> implements CoIns<T> {
 
     @Override
     public List<Co> toCo() {
-        return toCo == null ? Collections.emptyList() : toCo;
+        return toCo == null ? Collections.<Co> emptyList() : toCo;
     }
 
     @Override

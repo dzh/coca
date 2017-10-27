@@ -51,7 +51,8 @@ public class TestCoca {
 
     @Test
     public void testWithStack() throws IOException, CoException {
-        List<Ca<String, String>> caList = Arrays.asList(new CaLocal<String, String>("local"), new CaRemote<String, String>("remote"));
+        List<? extends Ca<String, String>> caList =
+                Arrays.asList(new CaLocal<String, String>("local"), new CaRemote<String, String>("remote"));
         LOG.info("index-{} name-{}", 1, caList.get(1).name());
         CaStack<String, String> stack = coca.<String> withStack("test", caList);
         Ca<String, String> ca = stack.ca(0);

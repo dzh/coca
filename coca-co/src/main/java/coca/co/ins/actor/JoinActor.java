@@ -34,7 +34,7 @@ public class JoinActor extends BasicActor {
     }
 
     @Override
-    public void submit(CoIns<?> ins) {
+    public void submit(final CoIns<?> ins) {
         LOG.info("{} {} submit {}", io.co(), name(), ins);
         ES.submit(new Runnable() {
 

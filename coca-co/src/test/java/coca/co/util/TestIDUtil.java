@@ -8,7 +8,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Enumeration;
 
 import org.junit.Test;
@@ -54,13 +53,13 @@ public class TestIDUtil {
         System.out.println(ManagementFactory.getRuntimeMXBean().getUptime());
         System.out.println(System.currentTimeMillis() - ManagementFactory.getRuntimeMXBean().getStartTime());
 
-        byte[] src = "1234567890".getBytes("utf-8");
-        String str = Base64.getEncoder().encodeToString(src);
-        System.out.println(str);
-
-        src = "1".getBytes("utf-8");
-        str = Base64.getEncoder().encodeToString(src);
-        System.out.println(str);
+        // byte[] src = "1234567890".getBytes("utf-8");
+        // String str = Base64.getEncoder().encodeToString(src);
+        // System.out.println(str);
+        //
+        // src = "1".getBytes("utf-8");
+        // str = Base64.getEncoder().encodeToString(src);
+        // System.out.println(str);
     }
 
 }

@@ -65,4 +65,14 @@ public class StackPolicy<K, V> implements CaPolicy<K, V> {
         return wop;
     }
 
+    @Override
+    public boolean isReadable() {
+        return true;
+    }
+
+    @Override
+    public boolean isWritable() {
+        return true;
+    }
+
 }

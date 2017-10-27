@@ -5,6 +5,7 @@ package coca.api;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -88,8 +89,8 @@ public class Coca implements Closeable, CocaConst {
     }
 
     public void init(Map<String, String> conf) {
-        int nThreads = Integer
-                .parseInt(conf.getOrDefault(P_COCA_HANDLER_THREDNUM, String.valueOf(Runtime.getRuntime().availableProcessors() * 10)));
+        int nThreads = conf.containsKey(P_COCA_HANDLER_THREDNUM) ? Integer.parseInt(conf.get(P_COCA_HANDLER_THREDNUM))
+                : Runtime.getRuntime().availableProcessors() * 10;
         // Ins thread pool
         insT = new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         // create Co
@@ -102,34 +103,39 @@ public class Coca implements Closeable, CocaConst {
     }
 
     protected void startSubThread(final Co co) {
-        subT = new Thread(() -> {
-            CoIns<?> ins = null;
-            for (;;) {
-                if (co.isClosed()) break;
-                try {
-                    ins = co.sub(10, TimeUnit.SECONDS);
-                    if (ins == VoidCoIns.VOID || ins == null) continue;
-                    if (co.equals(ins.from())) {// ignore self ins TODO
-                        LOG.debug("{} ignore self-ins {}", Coca.this, ins);
+        subT = new Thread(name + "-sub") {
+            public void run() {
+                CoIns<?> ins = null;
+                for (;;) {
+                    if (co.isClosed()) break;
+                    try {
+                        ins = co.sub(10, TimeUnit.SECONDS);
+                        if (ins == VoidCoIns.VOID || ins == null) continue;
+                        if (co.equals(ins.from())) {// ignore self ins TODO
+                            LOG.debug("{} ignore self-ins {}", Coca.this, ins);
+                            continue;
+                        }
+
+                        // TODO
+                        // if (insT.getQueue().size() > 100000) {
+                        // }
+
+                        insT.submit(customHandler(ins).coca(Coca.this));
+                    } catch (InterruptedException e) {
                         continue;
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
                     }
-
-                    // TODO
-                    // if (insT.getQueue().size() > 100000) {
-                    // }
-
-                    insT.submit(customHandler(ins).coca(this));
-                } catch (InterruptedException e) {
-                    continue;
-                } catch (Exception e) {
-                    LOG.error(e.getMessage(), e);
                 }
+                LOG.info("{} closed.", subT.getName());
+                closeLatch.countDown();
             }
-            LOG.info("{} closed.", subT.getName());
-            closeLatch.countDown();
-        }, name + "-sub");
-        subT.setUncaughtExceptionHandler((t, e) -> {
-            LOG.error(e.getMessage(), e);
+        };
+        subT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                LOG.error(e.getMessage(), e);
+            }
         });
         subT.start();
         LOG.info("{} start", subT.getName());
@@ -158,8 +164,9 @@ public class Coca implements Closeable, CocaConst {
     }
 
     protected Co initCo(Map<String, String> conf) {
-        // default value
-        conf.putIfAbsent(CocaConst.P_CO_INS_FACTORY, CocaInsFactory.class.getName());
+        if (!conf.containsKey(P_CO_INS_FACTORY)) {
+            conf.put(P_CO_INS_FACTORY, CocaInsFactory.class.getName());
+        }
 
         return BasicCo.newCo(conf);
     }
@@ -175,7 +182,7 @@ public class Coca implements Closeable, CocaConst {
      * @return
      * @throws CoException
      */
-    public <V> CaStack<String, V> withStack(String name, List<Ca<String, V>> ca, StackListener... listeners) throws CoException {
+    public <V> CaStack<String, V> withStack(String name, List<? extends Ca<String, V>> ca, StackListener... listeners) throws CoException {
         if (stacks.containsKey(name)) {
             stacks.get(name).close();
         }

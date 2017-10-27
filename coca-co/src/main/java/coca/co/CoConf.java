@@ -4,9 +4,9 @@
 package coca.co;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import coca.co.ins.CoInsFactory;
 import coca.co.ins.actor.CoActor;
@@ -25,7 +25,7 @@ import coca.co.util.IDUtil;
  */
 public class CoConf implements CoConst {
 
-    private Map<String, String> conf = Collections.synchronizedMap(new HashMap<>());
+    private ConcurrentMap<String, String> conf = new ConcurrentHashMap<>();
 
     public CoConf init(Map<String, String> conf) {
         if (conf == null) conf = Collections.emptyMap();
@@ -34,11 +34,12 @@ public class CoConf implements CoConst {
     }
 
     public String get(String key) {
-        return conf.getOrDefault(key, System.getProperty(key));
+        return get(key, System.getProperty(key));
     }
 
     public String get(String key, String defval) {
-        return Optional.ofNullable(get(key)).orElse(defval);
+        String val = conf.get(key);
+        return val == null ? defval : val;
     }
 
     public int getInt(String key, String defval) {
@@ -58,14 +59,13 @@ public class CoConf implements CoConst {
     }
 
     public CoInsFactory newInsFactory() throws Exception {
-        Class<?> clazz = getClass().getClassLoader().loadClass(conf.getOrDefault(P_CO_INS_FACTORY, CoInsFactory.class.getName()));
+        Class<?> clazz = getClass().getClassLoader().loadClass(get(P_CO_INS_FACTORY, CoInsFactory.class.getName()));
         return (CoInsFactory) clazz.newInstance();
     }
 
     public void withActors(CoIO io) throws Exception {
-        String[] actors = conf
-                .getOrDefault(P_CO_IO_ACTORS, "coca.co.ins.actor.JoinActor coca.co.ins.actor.QuitActor coca.co.ins.actor.HeartbeatActor")
-                .split(" ");
+        String[] actors =
+                get(P_CO_IO_ACTORS, "coca.co.ins.actor.JoinActor coca.co.ins.actor.QuitActor coca.co.ins.actor.HeartbeatActor").split(" ");
         for (String actor : actors) {
             io.withActor(newActor(actor));
         }
@@ -77,22 +77,22 @@ public class CoConf implements CoConst {
     }
 
     public Co newCo() throws Exception {
-        Class<?> clazz = getClass().getClassLoader().loadClass(conf.getOrDefault(P_CO, BasicCo.class.getName()));
+        Class<?> clazz = getClass().getClassLoader().loadClass(get(P_CO, BasicCo.class.getName()));
         return (Co) clazz.getConstructor(String.class).newInstance(IDUtil.newCoID());
     }
 
     public CoIO newIO() throws Exception {
-        Class<?> clazz = getClass().getClassLoader().loadClass(conf.getOrDefault(P_CO_IO, BasicIO.class.getName()));
+        Class<?> clazz = getClass().getClassLoader().loadClass(get(P_CO_IO, BasicIO.class.getName()));
         return (CoIO) clazz.newInstance();
     }
 
     public ChannelSelector newSelector() throws Exception {
-        Class<?> clazz = getClass().getClassLoader().loadClass(conf.getOrDefault(P_CO_IO_SELECTOR, LocalChannelSelector.class.getName()));
+        Class<?> clazz = getClass().getClassLoader().loadClass(get(P_CO_IO_SELECTOR, LocalChannelSelector.class.getName()));
         return (ChannelSelector) clazz.newInstance();
     }
 
     public void withCodecs(CoIO io) throws Exception {
-        String[] codecs = conf.getOrDefault(P_CO_INS_CODECS, TextInsCodec.class.getName()).split(" ");
+        String[] codecs = get(P_CO_INS_CODECS, TextInsCodec.class.getName()).split(" ");
         for (String codec : codecs) {
             io.withCodec(newCodec(codec));
         }

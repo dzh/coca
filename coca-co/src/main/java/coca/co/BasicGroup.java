@@ -5,8 +5,8 @@ package coca.co;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import coca.co.ins.CoIns;
@@ -25,7 +25,7 @@ public class BasicGroup implements CoGroup {
 
     private String name;
 
-    Map<String, Co> members;
+    ConcurrentMap<String, Co> members;
 
     public BasicGroup(String name) {
         this.name = name;

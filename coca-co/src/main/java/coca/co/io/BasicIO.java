@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -175,13 +174,17 @@ public class BasicIO implements CoIO {
 
     @Override
     public CoActor removeActor(String name) {
-        Optional<CoActor> op = actors.stream().filter(actor -> {
-            return actor.name().equals(name);
-        }).findFirst();
+        CoActor a = null;
+        for (CoActor actor : actors) {
+            if (actor.name().equals(name)) {
+                a = actor;
+                break;
+            }
+        }
 
-        if (op.isPresent()) {
-            actors.remove(op.get());
-            return op.get();
+        if (a != null) {
+            actors.remove(a);
+            return a;
         }
         return null;
     }
@@ -195,7 +198,7 @@ public class BasicIO implements CoIO {
     @Override
     public InsCodec codec(String name) {
         if (name == null) return TEXT_CODEC;
-        return codecs.getOrDefault(name, TEXT_CODEC);
+        return codecs.containsKey(name) ? codecs.get(name) : TEXT_CODEC;
     }
 
 }

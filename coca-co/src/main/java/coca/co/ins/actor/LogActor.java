@@ -40,7 +40,7 @@ public class LogActor extends BasicActor {
      * @see coca.co.ins.actor.CoActor#submit(coca.co.ins.CoIns)
      */
     @Override
-    public void submit(CoIns<?> ins) {
+    public void submit(final CoIns<?> ins) {
         LOG.info("{} {} submit {}", io.co(), name(), ins);
     }
 

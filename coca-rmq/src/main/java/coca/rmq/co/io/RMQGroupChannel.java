@@ -204,7 +204,7 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         }
     }
 
-    private void send(Message msg, PacketFuture pf) throws Exception {
+    private void send(Message msg, final PacketFuture pf) throws Exception {
         producer.send(msg, new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {

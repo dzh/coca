@@ -56,7 +56,7 @@ public class TestCoLocal {
      * @throws Exception
      */
     public static final void main(String[] args) throws Exception {
-        Co co = BasicCo.newCo(Collections.emptyMap());
+        final Co co = BasicCo.newCo(Collections.<String, String> emptyMap());
         co.join(LocalGroupName).get();
 
         Thread subT = new Thread("subT-local") {

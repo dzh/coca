@@ -22,9 +22,7 @@ interface CaWPolicy<K, V> {
      */
     long WOP_ABORT_ON_FAIL = 1 << 1;
 
-    default boolean isWritable() {
-        return true;
-    }
+    boolean isWritable();
 
     CaPointer<K, V> wp(CaValue<K, V> val);
 

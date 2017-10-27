@@ -5,9 +5,9 @@ package coca.co.io.packet;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Optional;
 
 import coca.co.BasicCo;
+import coca.co.CoConst;
 import coca.co.ins.ByteBufferCoIns;
 import coca.co.ins.CoIns;
 import coca.co.ins.CoIns.Ins;
@@ -21,6 +21,11 @@ import coca.co.util.MD5Hash;
 public class PacketCodec_v1 implements PacketCodec {
 
     private short _v = 1;
+
+    @Override
+    public Charset charset() {
+        return CoConst.UTF8;
+    }
 
     /*
      * (non-Javadoc)
@@ -108,10 +113,10 @@ public class PacketCodec_v1 implements PacketCodec {
 
         public byte[] ins() {
             int code = _ins.ins().code();
-            byte[] name = Optional.ofNullable(_ins.ins().name()).orElse("").getBytes(charset());
+            byte[] name = (_ins.ins().name() == null ? "" : _ins.ins().name()).getBytes(charset());
             if (name.length > Ins.MAX_NAME_BYTE)
                 throw new InsPacketException(_ins.ins().toString() + " name's size overflow:" + name.length);
-            byte[] format = Optional.ofNullable(_ins.format()).orElse("").getBytes(charset());
+            byte[] format = (_ins.format() == null ? "" : _ins.format()).getBytes(charset());
             if (format.length > Ins.MAX_FORMAT_BYTE)
                 throw new InsPacketException(_ins.ins().toString() + " format's size overflow:" + format.length);
             ByteBuffer buf = ByteBuffer.allocate(4 + 1 + name.length + 1 + format.length);
@@ -133,6 +138,11 @@ public class PacketCodec_v1 implements PacketCodec {
             this._packet = packet;
             this._ins = packet.ins();
             return ByteBuffer.wrap(packet());
+        }
+
+        @Override
+        public Charset charset() {
+            return CoConst.UTF8;
         }
     }
 
@@ -242,6 +252,11 @@ public class PacketCodec_v1 implements PacketCodec {
         public InsPacket decode(ByteBuffer packet) {
             this._packet = packet;
             return packet();
+        }
+
+        @Override
+        public Charset charset() {
+            return CoConst.UTF8;
         }
     }
 

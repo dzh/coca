@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class BasicCo implements Co {
 
     private String id;
 
-    private Map<String, CoGroup> groups;
+    private ConcurrentMap<String, CoGroup> groups;
 
     private volatile boolean closed = true;
 
@@ -116,41 +117,43 @@ public class BasicCo implements Co {
     }
 
     private void startHeartbeatDeamon() {
-        final Thread hbT = new Thread(() -> {
-            while (true) {
-                if (closed) break;
-                try {
-                    Co co = BasicCo.this;
-                    //
-                    int tick = conf.getInt(CoConst.P_CO_HEARTBEAT_TICK, "6000");
-                    Thread.sleep(tick);
-                    // pub heartbeat
-                    for (Entry<String, CoGroup> e : groups.entrySet()) {
-                        CoGroup g = e.getValue();
-                        if (g.contain(co)) {
-                            CoIns<?> ins = insFactory().newHeartbeat(g.name(), id()).from(co).to(g);
-                            co.pub(ins);
-                        }
+        Thread hbT = new Thread("heartbeat-" + id) {
+            public void run() {
+                while (true) {
+                    if (closed) break;
+                    try {
+                        Co co = BasicCo.this;
+                        //
+                        int tick = conf.getInt(CoConst.P_CO_HEARTBEAT_TICK, "6000");
+                        Thread.sleep(tick);
+                        // pub heartbeat
+                        for (Entry<String, CoGroup> e : groups.entrySet()) {
+                            CoGroup g = e.getValue();
+                            if (g.contain(co)) {
+                                CoIns<?> ins = insFactory().newHeartbeat(g.name(), id()).from(co).to(g);
+                                co.pub(ins);
+                            }
 
-                        // timeout checkout
-                        for (Co mem : g.members()) {
-                            if (co.equals(mem)) continue; // ignore self
-                            if (mem instanceof CoProxy) {
-                                long accessTime = ((CoProxy) mem).lastAccess();
-                                long timeout = System.currentTimeMillis() - accessTime;
-                                if (timeout > 5 * tick) {
-                                    g.quit(mem);
-                                    LOG.info("{} quit {} after {}ms", g.name(), co.id(), timeout);
+                            // timeout checkout
+                            for (Co mem : g.members()) {
+                                if (co.equals(mem)) continue; // ignore self
+                                if (mem instanceof CoProxy) {
+                                    long accessTime = ((CoProxy) mem).lastAccess();
+                                    long timeout = System.currentTimeMillis() - accessTime;
+                                    if (timeout > 5 * tick) {
+                                        g.quit(mem);
+                                        LOG.info("{} quit {} after {}ms", g.name(), co.id(), timeout);
+                                    }
                                 }
                             }
                         }
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
                     }
-                } catch (Exception e) {
-                    LOG.error(e.getMessage(), e);
                 }
+                LOG.info("headtbeat-{} exit!", id());
             }
-            LOG.info("headtbeat-{} exit!", id());
-        }, "heartbeat-" + id);
+        };
         hbT.setDaemon(true);
         hbT.start();
     }
@@ -160,7 +163,7 @@ public class BasicCo implements Co {
         return id;
     }
 
-    protected Map<String, CoGroup> initGroup() {
+    protected ConcurrentMap<String, CoGroup> initGroup() {
         return new ConcurrentHashMap<String, CoGroup>();
     }
 

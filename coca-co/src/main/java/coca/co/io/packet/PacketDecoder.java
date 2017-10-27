@@ -6,8 +6,6 @@ package coca.co.io.packet;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import coca.co.CoConst;
-
 /**
  * @author dzh
  * @date Sep 8, 2017 5:45:43 PM
@@ -19,8 +17,5 @@ public interface PacketDecoder {
 
     InsPacket decode(ByteBuffer packet);
 
-    default Charset charset() {
-        return CoConst.UTF8;
-    }
-
+    Charset charset();
 }

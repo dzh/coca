@@ -183,9 +183,10 @@ public abstract class GroupChannel implements CoChannel {
      *             if the element selected is null
      */
     protected PacketCodec codec(int v) {
-        return codec.stream().filter(c -> {
-            return c.version() == v;
-        }).findFirst().get();
+        for (PacketCodec c : codec) {
+            if (c.version() == v) return c;
+        }
+        return null;
     }
 
     @Override

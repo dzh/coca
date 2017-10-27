@@ -3,7 +3,6 @@
  */
 package coca.co.ins.actor;
 
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +45,7 @@ public class QuitActor extends BasicActor {
     }
 
     @Override
-    public void submit(CoIns<?> ins) {
+    public void submit(final CoIns<?> ins) {
         LOG.info("{} {} submit {}", io.co(), name(), ins);
         ES.submit(new Runnable() {
 
@@ -55,7 +54,7 @@ public class QuitActor extends BasicActor {
                 Co co = io.co();
                 CoGroup g = co.group(ins.toGroup().name(), false);
                 LOG.info("quit before {}", g);
-                Optional.<CoGroup> ofNullable(g).ifPresent(group -> group.quit(ins.from()));
+                if (g != null) g.quit(ins.from());
                 LOG.info("quit after {}", g);
             }
         });

@@ -6,9 +6,11 @@ package coca.co.io;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +36,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
 
     static final Logger LOG = LoggerFactory.getLogger(GroupChannelSelector.class);
 
-    Map<String, CoChannel> channels; // <group name,channel>
+    ConcurrentMap<String, CoChannel> channels; // <group name,channel>
 
     private volatile boolean closed = false;
 
@@ -99,13 +101,16 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
     }
 
     // used for close
-    private Map<CoChannel, ChannelThread> channelThreads = Collections.synchronizedMap(new HashMap<>());
+    private Map<CoChannel, ChannelThread> channelThreads = Collections.synchronizedMap(new HashMap<CoChannel, ChannelThread>());
 
     @Override
     public void close() throws IOException {
         if (closed) return;
         closed = true;
-        channels.forEach((name, ch) -> {
+
+        Iterator<CoChannel> iter = channels.values().iterator();
+        while (iter.hasNext()) {
+            CoChannel ch = iter.next();
             try {
                 ch.close();
                 channelThreads.get(ch).interrupt();
@@ -113,7 +118,8 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
-        });
+        }
+
         channels.clear();
         channelThreads.clear();
     }

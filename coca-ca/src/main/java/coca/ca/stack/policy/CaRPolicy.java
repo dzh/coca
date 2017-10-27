@@ -16,9 +16,7 @@ interface CaRPolicy<K, V> {
      */
     long ROP_BACK_WRITE = 1;
 
-    default boolean isReadable() {
-        return true;
-    }
+    boolean isReadable();
 
     /**
      * 

@@ -4,11 +4,8 @@
 package coca.co.util;
 
 import java.lang.management.ManagementFactory;
-import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-
-import coca.co.CoConst;
 
 /**
  * @author dzh
@@ -40,17 +37,13 @@ public class IDUtil {
         return id.split(split, 3);
     }
 
-    public static final String encode(String id) {
-        return new String(Base64.getEncoder().encode(id.getBytes(CoConst.UTF8)), CoConst.UTF8);
-    }
+    // public static final String encode(String id) {
+    // return new String(Base64.getEncoder().encode(id.getBytes(CoConst.UTF8)), CoConst.UTF8);
+    // }
 
-    /**
-     * @param id
-     * @return String
-     */
-    public static final String decode(String id) {
-        return new String(Base64.getDecoder().decode(id.getBytes(CoConst.UTF8)), CoConst.UTF8);
-    }
+    // public static final String decode(String id) {
+    // return new String(Base64.getDecoder().decode(id.getBytes(CoConst.UTF8)), CoConst.UTF8);
+    // }
 
     public static final String getPID() {
         String name = ManagementFactory.getRuntimeMXBean().getName();
