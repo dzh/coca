@@ -5,12 +5,11 @@ package coca.demo.benchmark.redis;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.alibaba.rocketmq.shade.io.netty.util.internal.ThreadLocalRandom;
 
 import coca.api.CocaConst;
 import coca.demo.sample.CocaSample;
