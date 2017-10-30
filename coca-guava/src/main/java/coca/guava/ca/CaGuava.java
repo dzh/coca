@@ -22,7 +22,7 @@ public class CaGuava<K, V> extends BasicCa<K, V> {
     private Cache<K, V> ca;
 
     public CaGuava() {
-        this("guava-cache");
+        this("ca-guava");
     }
 
     public CaGuava(String name) {

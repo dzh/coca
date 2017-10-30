@@ -22,6 +22,10 @@ public class CaRedis<K, V> extends BasicCa<K, V> {
 
     private RedissonClient redisson;
 
+    public CaRedis() {
+        this("ca-redis");
+    }
+
     public CaRedis(String name) {
         this(name, Redisson.create());
     }
