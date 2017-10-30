@@ -9,30 +9,34 @@
 	<artifactId>coca-demo</artifactId>
 
 	<properties>
-		<coca.version>0.0.1-SNAPSHOT</coca.version>
 		<log4j.version>2.9.1</log4j.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>dzh.github.io</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-api</artifactId>
-			<version>${coca.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>dzh.github.io</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-redis</artifactId>
-			<version>${coca.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>dzh.github.io</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-rmq</artifactId>
-			<version>${coca.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>dzh.github.io</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-guava</artifactId>
-			<version>${coca.version}</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>coca-ehcache</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>

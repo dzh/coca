@@ -22,5 +22,10 @@
 			<artifactId>ehcache-transactions</artifactId>
 			<version>3.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>coca-ca</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>

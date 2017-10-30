@@ -10,12 +10,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>io.github.dzh</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-co</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.github.dzh</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-ca</artifactId>
 			<version>${project.version}</version>
 		</dependency>

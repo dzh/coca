@@ -5,10 +5,9 @@ package coca.demo.sample;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.logging.log4j.core.config.Configurator;
-
-import com.alibaba.rocketmq.shade.io.netty.util.internal.ThreadLocalRandom;
 
 import coca.api.CocaConst;
 import coca.redis.co.io.RedisChannelSelector;

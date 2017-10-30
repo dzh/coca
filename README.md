@@ -89,6 +89,9 @@ Co-Cache 协同缓存框架
 ## 文档链接
 - [源码说明](doc/coca_project.md)
 
+## 联系方式
+- 邮件列表 `coca-dev@googlegroups.com`
+
 ## TODO
 - redis保证组消息可靠到达，使用日志+group实现重发机制
 - 组消息丢失，手工补救方式，如web界面
@@ -96,6 +99,7 @@ Co-Cache 协同缓存框架
 - AckCoIns
 - 实现PUB_TIMEOUT,ACK_TIMEOUT,ACK_SUCC,ACK_FAIL更新InsFuture
 - ca写相同值时的优化处理
+- co的发送限制规则：是否只允许在已join的组内发消息
 
 
 
