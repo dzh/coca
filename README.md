@@ -99,6 +99,7 @@ Co-Cache 协同缓存框架
 - AckCoIns
 - 实现PUB_TIMEOUT,ACK_TIMEOUT,ACK_SUCC,ACK_FAIL更新InsFuture
 - ca写相同值时的优化处理
+- co的发送限制规则：是否只允许在已join的组内发消息
 
 
 

@@ -15,9 +15,9 @@
 			<version>23.1-jre</version>
 		</dependency>
 		<dependency>
-			<groupId>dzh.github.io</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>coca-ca</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
