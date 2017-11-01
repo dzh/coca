@@ -58,7 +58,41 @@ public class IDUtil {
     }
 
     public static final String uuid() {
+        return uuid3();
+    }
+
+    public static final String uuid1() {
         return UUID.randomUUID().toString().replaceAll("-", "").toLowerCase();
+    }
+
+    public static final String uuid2() {
+        String ts = String.valueOf(System.currentTimeMillis());
+        String hash = String.valueOf(Math.abs(ManagementFactory.getRuntimeMXBean().getName().hashCode()));
+        int ranlen = 32 - ts.length() - hash.length();
+
+        StringBuilder buf = new StringBuilder(ts.length() + ranlen + hash.length());
+        buf.append(ts);
+        buf.append(hash);
+        for (int i = 0; i < ranlen; i++) {
+            buf.append(ThreadLocalRandom.current().nextInt(1, 10));
+        }
+        return buf.toString();
+    }
+
+    public static final String uuid3() {
+        String ts = Long.toHexString(System.currentTimeMillis());
+        String hash = String.valueOf(Integer.toHexString(ManagementFactory.getRuntimeMXBean().getName().hashCode()));
+        int ranlen = 32 - ts.length() - hash.length();
+
+        StringBuilder buf = new StringBuilder(32);
+        buf.append(ts);
+        // buf.append("-");
+        buf.append(hash);
+        // buf.append("-");
+        for (int i = 0; i < ranlen; i++) {
+            buf.append(Integer.toHexString(ThreadLocalRandom.current().nextInt(0, 16)));
+        }
+        return buf.toString();
     }
 
 }
