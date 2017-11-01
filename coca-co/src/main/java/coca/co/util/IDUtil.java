@@ -74,7 +74,7 @@ public class IDUtil {
 
     public static final String uuid3() {
         String ts = Long.toHexString(System.currentTimeMillis());
-        String hash = String.valueOf(Integer.toHexString(ManagementFactory.getRuntimeMXBean().getName().hashCode()));
+        String hash = Integer.toHexString(ManagementFactory.getRuntimeMXBean().getName().hashCode());
         int ranlen = 32 - ts.length() - hash.length();
 
         StringBuilder buf = new StringBuilder(32);
