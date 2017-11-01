@@ -62,13 +62,13 @@ public class TestIDBenchmark {
         LOG.info("uuid3 {}", IDUtil.uuid3());
         int warm = 100000;
         for (int i = 0; i < warm; i++) {
-            IDUtil.uuid2();
+            IDUtil.uuid3();
         }
 
         int loop = 100000;
         long s0 = System.currentTimeMillis();
         for (int i = 0; i < loop; i++) {
-            IDUtil.uuid2();
+            IDUtil.uuid3();
         }
         long s1 = System.currentTimeMillis();
         LOG.info("uuid3 time-{}", s1 - s0);
