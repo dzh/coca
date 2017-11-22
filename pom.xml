@@ -196,6 +196,7 @@
 		<module>coca-guava</module>
 		<module>coca-demo</module>
 		<module>coca-kafka</module>
+		<module>coca-memcached</module>
 	</modules>
 
 </project>
