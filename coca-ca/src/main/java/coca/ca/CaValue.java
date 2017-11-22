@@ -32,6 +32,10 @@ public class CaValue<K, V> {
         this.value = v;
     }
 
+    public static final <K, V> CaValue<K, V> newVal(K k) {
+        return new CaValue<K, V>(k, null);
+    }
+
     public static final <K, V> CaValue<K, V> newVal(K k, V v) {
         return new CaValue<K, V>(k, v);
     }
