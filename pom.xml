@@ -195,6 +195,7 @@
 		<module>coca-ehcache</module>
 		<module>coca-guava</module>
 		<module>coca-demo</module>
+		<module>coca-kafka</module>
 	</modules>
 
 </project>

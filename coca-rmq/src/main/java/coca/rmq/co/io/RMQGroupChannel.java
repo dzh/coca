@@ -100,6 +100,7 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         consumer.setPullThresholdForQueue(consumePullThreshold());
         consumer.setConsumeConcurrentlyMaxSpan(consumeConcurrentlyMaxSpan());// 2000
         consumer.setMaxReconsumeTimes(consumeMaxReconsumeTimes()); // 16
+        consumer.setPersistConsumerOffsetInterval(persistOffsetInterval()); // ms
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
@@ -255,6 +256,10 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
 
     protected int consumeMaxReconsumeTimes() {
         return selector.io().co().conf().getInt(P_CO_RMQ_C_MAX_RECONSUME_TIMES, "3");
+    }
+
+    protected int persistOffsetInterval() {
+        return selector.io().co().conf().getInt(P_CO_RMQ_C_PERSIST_OFFSET_INTERVAL, "5") * 1000;
     }
 
     protected int consumeConcurrentlyMaxSpan() {

@@ -64,6 +64,14 @@ public abstract class GroupChannel implements CoChannel {
         return this;
     }
 
+    protected String conf(String key, String defval) {
+        return selector.io().co().conf().get(key, defval);
+    }
+
+    protected boolean containConf(String key) {
+        return selector.io().co().conf().contain(key);
+    }
+
     // TODO config
     protected BlockingQueue<PacketFuture> createWriteQueue() {
         return new LinkedBlockingQueue<PacketFuture>(10000);

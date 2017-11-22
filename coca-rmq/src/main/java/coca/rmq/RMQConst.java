@@ -23,6 +23,7 @@ public interface RMQConst {
     String P_CO_RMQ_C_PULL_THRESHOLD = "co.rmq.c.pull.threshold";
     String P_CO_RMQ_C_MAX_RECONSUME_TIMES = "co.rmq.c.max.reconsume.times";
     String P_CO_RMQ_C_MAX_SPAN = "co.rmq.c.max.span";
+    String P_CO_RMQ_C_PERSIST_OFFSET_INTERVAL = "co.rmq.c.persist.offset.interval";
 
     // produce
     String P_CO_RMQ_P_RETRY_TIMES = "co.rmq.p.retry.times";
