@@ -229,6 +229,11 @@ public class Coca implements Closeable, CocaConst {
         }
     }
 
+    public void closeStack(String name) {
+        CaStack<String, ?> stack = stacks.remove(name);
+        if (stack != null) stack.close();
+    }
+
     private void closeInsT() {
         if (insT != null && !insT.isTerminated()) {
             try {
