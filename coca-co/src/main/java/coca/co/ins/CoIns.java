@@ -1,17 +1,18 @@
 /**
- * 
+ *
  */
 package coca.co.ins;
-
-import java.util.List;
 
 import coca.co.Co;
 import coca.co.CoGroup;
 import coca.co.ins.fmt.InsFormat;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 /**
  * Co Instruction
- * 
+ *
  * @author dzh
  * @date Aug 9, 2017 7:07:52 PM
  * @since 0.0.1
@@ -36,7 +37,7 @@ public interface CoIns<T> extends Cloneable {
 
     /**
      * millisecond to explain that the expired time of CoIns
-     * 
+     *
      * @return
      */
     long ttl();
@@ -45,13 +46,13 @@ public interface CoIns<T> extends Cloneable {
 
     /**
      * Instruction
-     * 
+     * <p>
      * <pre>
      * Ins's code:
      * {@link Ins} reserved:[0,1024]
      * user definition:[1025,+∞)
      * </pre>
-     * 
+     *
      * @return {@link Ins}
      */
     Ins ins();
@@ -60,7 +61,7 @@ public interface CoIns<T> extends Cloneable {
 
     /**
      * Instruction data
-     * 
+     *
      * @return
      */
     T data();
@@ -81,7 +82,7 @@ public interface CoIns<T> extends Cloneable {
 
     /**
      * InsCodec's name
-     * 
+     *
      * @param codec
      * @return
      */
@@ -93,7 +94,7 @@ public interface CoIns<T> extends Cloneable {
 
     /**
      * Ins structure: code data
-     * 
+     * <p>
      * MaxLength:
      */
     public static class Ins implements InsConst {
@@ -129,9 +130,15 @@ public interface CoIns<T> extends Cloneable {
             return code;
         }
 
+        //        @Override
+        //        public String toString() {
+        //            return "Ins[" + code + "_" + name + "_" + format + "]";
+        //        }
+
         @Override
         public String toString() {
-            return "Ins[" + code + "_" + name + "_" + format + "]";
+            StringJoiner joiner = new StringJoiner("_", "Ins[", "]");
+            return joiner.add(String.valueOf(code)).add(name).add(format).toString();
         }
 
         @Override

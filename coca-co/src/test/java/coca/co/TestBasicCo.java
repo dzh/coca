@@ -1,13 +1,18 @@
 /**
- * 
+ *
  */
 package coca.co;
+
+import coca.co.ins.AckCoIns;
+import coca.co.ins.InsConst;
+import coca.co.util.IDUtil;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.junit.Test;
 
 /**
  * @author dzh
@@ -16,7 +21,8 @@ import org.junit.Test;
  */
 public class TestBasicCo {
 
-    @Test
+    static Logger LOG = LoggerFactory.getLogger(TestBasicCo.class);
+
     public void testCoId() throws UnsupportedEncodingException {
         // BasicCo co = new BasicCo();
         // System.out.println(co.id());
@@ -29,6 +35,13 @@ public class TestBasicCo {
         System.out.println("z".getBytes().length);
         System.out.println((byte) 127);
 
+    }
+
+    @Test
+    public void testIns() {
+        LOG.info(InsConst.JOIN.toString());
+
+        LOG.info(new AckCoIns(InsConst.ACK).id(IDUtil.uuid()).toString());
     }
 
     public void testMD5() throws NoSuchAlgorithmException {
