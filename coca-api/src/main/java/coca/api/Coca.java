@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package coca.api;
 
@@ -50,7 +50,7 @@ import coca.co.ins.VoidCoIns;
  * coca.close();
  * }
  * </pre>
- * 
+ *
  * @author dzh
  * @date Nov 12, 2016 10:44:46 PM
  * @since 0.0.1
@@ -80,7 +80,7 @@ public class Coca implements Closeable, CocaConst {
     }
 
     /**
-     * 
+     *
      * @return coca's name
      */
     public String name() {
@@ -142,7 +142,7 @@ public class Coca implements Closeable, CocaConst {
     }
 
     /**
-     * 
+     *
      * @param conf
      *            {@link CoConst} contains configuration keys
      * @return
@@ -165,7 +165,7 @@ public class Coca implements Closeable, CocaConst {
     }
 
     /**
-     * 
+     *
      * @param name
      *            stack's name to be used for ins's sync-group name
      * @param ca
@@ -222,7 +222,7 @@ public class Coca implements Closeable, CocaConst {
                 closeLatch.await(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {}
             for (Entry<String, CaStack<String, ?>> e : stacks.entrySet()) {
-                e.getValue().close();
+                closeStack(e.getKey());
             }
             stacks.clear();
             LOG.info("{} closed.", this.name);
@@ -231,7 +231,16 @@ public class Coca implements Closeable, CocaConst {
 
     public void closeStack(String name) {
         CaStack<String, ?> stack = stacks.remove(name);
-        if (stack != null) stack.close();
+        if (stack != null) {
+            try {
+                co.quit(name);
+            } catch (CoException e) {
+                LOG.error(e.getMessage(), e);
+            } finally {
+                stack.close();
+                LOG.info("{} closeStack {} succ!", this.name, name);
+            }
+        }
     }
 
     private void closeInsT() {
