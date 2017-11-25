@@ -214,15 +214,16 @@ public class Coca implements Closeable, CocaConst {
     @Override
     public void close() throws IOException {
         try {
-            if (co != null) co.close();
+            if (co != null) co.close(); // close co to quit group
         } finally {
-            closeSubT();
-            closeInsT();
+            closeSubT(); // close sub-thread
             try {
                 closeLatch.await(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {}
+            closeInsT();
+
             for (Entry<String, CaStack<String, ?>> e : stacks.entrySet()) {
-                closeStack(e.getKey());
+                e.getValue().close();  // close stack
             }
             stacks.clear();
             LOG.info("{} closed.", this.name);
@@ -248,6 +249,7 @@ public class Coca implements Closeable, CocaConst {
             try {
                 insT.shutdown();
                 insT.awaitTermination(30, TimeUnit.SECONDS);// TODO
+                LOG.info("{}-ins closed.", this.name);
             } catch (InterruptedException e) {}
         }
     }

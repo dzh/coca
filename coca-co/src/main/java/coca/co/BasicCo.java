@@ -217,7 +217,6 @@ public class BasicCo implements Co {
 
     @Override
     public CoIns<?> sub(long timeout, TimeUnit unit) throws CoException {
-        if (isClosed()) throw new CoException("Co closed!");
         return io.sub(timeout, unit);
     }
 
@@ -235,7 +234,7 @@ public class BasicCo implements Co {
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if (closed) return;
         try {
             // quit group //TODO abnormal exit how to quit
