@@ -71,6 +71,17 @@ public class TestRedisson {
         LOG.info("size {}", list.size());
         list.delete();
     }
+    
+    @Test
+    public void test1k() {
+        long s0 = System.currentTimeMillis();
+        for (int i = 0; i < 10000000; i++) {
+            RBucket<String> bucket = redis.getBucket("test1k" + i, new StringCodec("utf-8"));
+            bucket.set(String.valueOf(System.nanoTime()), 1, TimeUnit.HOURS);
+        }
+        long s1 = System.currentTimeMillis();
+        LOG.info("cost {}ms", s1 - s0);
+    }
 
     static class TestClazz {
         public String a;

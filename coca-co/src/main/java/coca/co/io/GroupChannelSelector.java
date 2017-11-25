@@ -113,8 +113,9 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
             CoChannel ch = iter.next();
             try {
                 ch.close();
-                channelThreads.get(ch).interrupt();
-                channelThreads.get(ch).awaitExit(10, TimeUnit.SECONDS);
+                ChannelThread chT = channelThreads.remove(ch);
+                chT.interrupt();
+                chT.awaitExit(60, TimeUnit.SECONDS);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
@@ -122,14 +123,36 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
 
         channels.clear();
         channelThreads.clear();
+
+        if (_queue != null) {
+            int totalSleep = 0;
+            while (!_queue.isEmpty()) {
+                LOG.warn("{} InsPackets retain!", _queue.size());
+                try {
+                    Thread.sleep(10L);
+                } catch (InterruptedException e) {
+                    LOG.error(e.getMessage(), e);
+                    break;
+                }
+                totalSleep += 10;
+                if (totalSleep >= 300000) { // TODO max-sleep time 5m
+                    break;
+                }
+            }
+        }
+        if (!_queue.isEmpty()) LOG.error("discard {} InsPackets after 5m sleep", _queue.size());
+        // TODO persist InsPackets in _queue
+
+        LOG.info("ChannelSelector closed.");
     }
 
     @Override
     public InsPacket poll(long timeout, TimeUnit unit) {
+        if (closed && _queue.isEmpty()) return null;
         try {
             return _queue.poll(timeout, unit);
         } catch (InterruptedException e) {
-            // LOG.warn("interrupted");
+            LOG.debug(e.getMessage(), e);
         }
         return null;
     }
@@ -149,7 +172,7 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
             READ_PACKET:
             for (;;) {
                 try {
-                    InsPacket packet = ch.read(30, TimeUnit.SECONDS);// TODO
+                    InsPacket packet = ch.read(10, TimeUnit.SECONDS);// TODO
                     if (packet == null) {
                         if (!ch.isOpen()) {
                             break;
@@ -171,8 +194,8 @@ public abstract class GroupChannelSelector extends BasicChannelSelector {
                         LOG.error("discard {}", packet.toString());// TODO save
                     }
                 } catch (InterruptedException e) {
-                    LOG.warn("{} Interrupted", getName());
-                    break;
+                    LOG.debug("{} Interrupted", getName());
+                    continue;
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                 }

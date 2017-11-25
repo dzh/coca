@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package coca.api;
 
@@ -51,7 +51,7 @@ import coca.co.ins.VoidCoIns;
  * coca.close();
  * }
  * </pre>
- * 
+ *
  * @author dzh
  * @date Nov 12, 2016 10:44:46 PM
  * @since 0.0.1
@@ -81,7 +81,7 @@ public class Coca implements Closeable, CocaConst {
     }
 
     /**
-     * 
+     *
      * @return coca's name
      */
     public String name() {
@@ -148,7 +148,7 @@ public class Coca implements Closeable, CocaConst {
     }
 
     /**
-     * 
+     *
      * @param conf
      *            {@link CoConst} contains configuration keys
      * @return
@@ -172,7 +172,7 @@ public class Coca implements Closeable, CocaConst {
     }
 
     /**
-     * 
+     *
      * @param name
      *            stack's name to be used for ins's sync-group name
      * @param ca
@@ -221,18 +221,33 @@ public class Coca implements Closeable, CocaConst {
     @Override
     public void close() throws IOException {
         try {
-            if (co != null) co.close();
+            if (co != null) co.close(); // close co to quit group
         } finally {
-            closeSubT();
-            closeInsT();
+            closeSubT(); // close sub-thread
             try {
                 closeLatch.await(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {}
+            closeInsT();
+
             for (Entry<String, CaStack<String, ?>> e : stacks.entrySet()) {
-                e.getValue().close();
+                e.getValue().close();  // close stack
             }
             stacks.clear();
             LOG.info("{} closed.", this.name);
+        }
+    }
+
+    public void closeStack(String name) {
+        CaStack<String, ?> stack = stacks.remove(name);
+        if (stack != null) {
+            try {
+                co.quit(name);
+            } catch (CoException e) {
+                LOG.error(e.getMessage(), e);
+            } finally {
+                stack.close();
+                LOG.info("{} closeStack {} succ!", this.name, name);
+            }
         }
     }
 
@@ -241,6 +256,7 @@ public class Coca implements Closeable, CocaConst {
             try {
                 insT.shutdown();
                 insT.awaitTermination(30, TimeUnit.SECONDS);// TODO
+                LOG.info("{}-ins closed.", this.name);
             } catch (InterruptedException e) {}
         }
     }

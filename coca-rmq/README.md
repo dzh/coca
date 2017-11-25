@@ -2,8 +2,7 @@ coco-rmq
 ======================
 
 
-
-## [配置定义](src/main/java/coca/co/CoConst.java)[=默认值]
+## [配置定义](src/main/java/coca/rmq/RMQConst.java)[=默认值]
 - co.io.selector = coca.rmq.co.io.RMQChannelSelector
 - co.rmq.namesrv = 127.0.0.1:9876
 - co.rmq.topic.queuenum = 8
@@ -17,5 +16,6 @@ coco-rmq
 - co.rmq.c.timeout = 5 //minute
 - co.rmq.c.max.reconsume.times = 3 
 - co.rmq.c.max.span = 10000
+- co.rmq.c.offset.interval = 5 //second
 
 

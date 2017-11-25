@@ -151,6 +151,7 @@ public class BasicStack<K, V> implements CaStack<K, V> {
     @Override
     public void close() {
         stack.clear();
+        LOG.info("{}-stack closed.", name);
         // closeStack(); // ca maybe shared among multiple stack
     }
 

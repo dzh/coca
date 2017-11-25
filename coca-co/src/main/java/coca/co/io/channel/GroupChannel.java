@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -64,6 +65,14 @@ public abstract class GroupChannel implements CoChannel {
         return this;
     }
 
+    protected String conf(String key, String defval) {
+        return selector.io().co().conf().get(key, defval);
+    }
+
+    protected boolean containConf(String key) {
+        return selector.io().co().conf().contain(key);
+    }
+
     // TODO config
     protected BlockingQueue<PacketFuture> createWriteQueue() {
         return new LinkedBlockingQueue<PacketFuture>(10000);
@@ -95,10 +104,8 @@ public abstract class GroupChannel implements CoChannel {
     @Override
     public void close() throws IOException {
         open = false;
-        if (!wq.isEmpty()) try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {}
         wt.interrupt();
+        wt.awaitExit();
         selector = null;
     }
 
@@ -125,6 +132,8 @@ public abstract class GroupChannel implements CoChannel {
 
     class WriterThread extends Thread {
 
+        private final CountDownLatch _latch = new CountDownLatch(1);
+
         public WriterThread(String name) {
             super(name);
         }
@@ -135,16 +144,26 @@ public abstract class GroupChannel implements CoChannel {
                 if (!GroupChannel.this.isOpen() && wq.isEmpty()) break;
                 PacketFuture pf = null;
                 try {
-                    pf = wq.take();
+                    pf = wq.poll(10, TimeUnit.SECONDS);
+                    if (pf == null) continue;
                     writeImpl(pf);
                 } catch (InterruptedException e) {
-                    LOG.warn("WriterThread {} interrupted", getName());
+                    LOG.debug("WriterThread {} interrupted", getName());
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
                     if (pf != null) pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
                 }
             }
             LOG.info("{} exit!", getName());
+            _latch.countDown();
+        }
+
+        public void awaitExit() {
+            try {
+                _latch.await(60, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                LOG.warn(e.getMessage(), e);
+            }
         }
     }
 
@@ -161,6 +180,7 @@ public abstract class GroupChannel implements CoChannel {
 
     @Override
     public InsPacket read(long timeout, TimeUnit unit) throws InterruptedException {
+        if (!isOpen() && rq.isEmpty()) return null;
         try {
             return rq.poll(timeout, unit);
         } catch (InterruptedException e) {

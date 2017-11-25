@@ -50,6 +50,10 @@ public class CoConf implements CoConst {
         return conf.put(key, val);
     }
 
+    public boolean contain(String key) {
+        return conf.containsKey(key);
+    }
+
     public String remove(String key) {
         return conf.remove(key);
     }
