@@ -3,6 +3,9 @@
  */
 package coca.api.ca;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import coca.api.CocaConst;
 import coca.api.co.StackCoIns;
 import coca.ca.stack.StackEvent;
@@ -10,8 +13,6 @@ import coca.ca.stack.StackListener;
 import coca.co.BasicGroup;
 import coca.co.Co;
 import coca.co.CoException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author dzh
@@ -46,7 +47,7 @@ public class CocaListener implements StackListener, WithCo {
     }
 
     public String evictData(StackEvent evnt) {
-        return String.join(" ", evnt.getStackName(), evnt.ca().name(), evnt.key().toString());
+        return evnt.getStackName() + " " + evnt.ca().name() + " " + evnt.key().toString();
     }
 
     @Override

@@ -15,9 +15,12 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,51 +103,58 @@ public class KafkaGroupChannel extends GroupChannel implements KafkaConst {
         consumer = new KafkaConsumer<>(props);
         // consumer.subscribe(Arrays.asList(name(), name() + "_" + Math.abs(selector.io().co().hashCode())));
         consumer.subscribe(Arrays.asList(name()));// TODO
-        consumer.seekToEnd(Collections.emptyList());
-        consumerThread = new Thread(() -> {
-            int ignoreTime = messageIgnoreTimeout() * 1000;
-            while (true) {
-                if (closed) break;
+        consumer.seekToEnd(Collections.<TopicPartition> emptyList());
+        consumerThread = new Thread(new Runnable() {
 
-                try {
-                    ConsumerRecords<String, Bytes> records = consumer.poll(200L);
-                    if (records.isEmpty()) continue;
+            @Override
+            public void run() {
 
-                    boolean consumedSucc = true;
-                    for (ConsumerRecord<String, Bytes> record : records) {
-                        if ((System.currentTimeMillis() - record.timestamp()) > ignoreTime) {
-                            LOG.warn("discard kafka timeout msg-{}", record);
-                            continue;
+                int ignoreTime = messageIgnoreTimeout() * 1000;
+                while (true) {
+                    if (closed) break;
+
+                    try {
+                        ConsumerRecords<String, Bytes> records = consumer.poll(200L);
+                        if (records.isEmpty()) continue;
+
+                        boolean consumedSucc = true;
+                        for (ConsumerRecord<String, Bytes> record : records) {
+                            if ((System.currentTimeMillis() - record.timestamp()) > ignoreTime) {
+                                LOG.warn("discard kafka timeout msg-{}", record);
+                                continue;
+                            }
+
+                            if (record.key() != null && !record.key().equals(KafkaGroupChannel.this.selector.io().co().id())) {
+                                LOG.warn("discard kafka other msg-{}", record);
+                                continue;
+                            }
+
+                            LOG.info("recv kafka msg-{}", record);
+                            ByteBuffer packet = ByteBuffer.wrap(record.value().get());
+                            packet.position(4);
+                            int v = packet.getShort();
+                            packet.rewind();
+                            InsPacket ins = KafkaGroupChannel.this.codec(v).decode(packet);
+                            LOG.info("read packet-{}", ins);
+
+                            if (!receive(ins)) {
+                                consumedSucc = false;
+                                LOG.error("receive msg-{}", ins);
+                                break;
+                            }
                         }
 
-                        if (record.key() != null && !record.key().equals(KafkaGroupChannel.this.selector.io().co().id())) {
-                            LOG.warn("discard kafka other msg-{}", record);
-                            continue;
+                        if (consumedSucc) {
+                            consumer.commitAsync();
                         }
-
-                        LOG.info("recv kafka msg-{}", record);
-                        ByteBuffer packet = ByteBuffer.wrap(record.value().get());
-                        packet.position(4);
-                        int v = packet.getShort();
-                        packet.rewind();
-                        InsPacket ins = KafkaGroupChannel.this.codec(v).decode(packet);
-                        LOG.info("read packet-{}", ins);
-
-                        if (!receive(ins)) {
-                            consumedSucc = false;
-                            LOG.error("receive msg-{}", ins);
-                            break;
-                        }
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
                     }
-
-                    if (consumedSucc) {
-                        consumer.commitAsync();
-                    }
-                } catch (Exception e) {
-                    LOG.error(e.getMessage(), e);
                 }
+                consumer.close(30, TimeUnit.SECONDS);
+
             }
-            consumer.close(30, TimeUnit.SECONDS);
+
         }, "KafkaConsumerThread-" + selector.io().co().hashCode());
         consumerThread.start();
     }
@@ -212,14 +222,17 @@ public class KafkaGroupChannel extends GroupChannel implements KafkaConst {
         }
     }
 
-    private void send(ProducerRecord<String, Bytes> msg, PacketFuture pf) throws Exception {
-        producer.send(msg, (m, e) -> {
-            if (m != null) {
-                LOG.info(m.toString());
-                pf.result(new PacketResult(PacketResult.IOSt.SEND_SUCC));
-            } else {
-                LOG.error(e.getMessage(), e);
-                pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
+    private void send(ProducerRecord<String, Bytes> msg, final PacketFuture pf) throws Exception {
+        producer.send(msg, new Callback() {
+            @Override
+            public void onCompletion(RecordMetadata m, Exception e) {
+                if (m != null) {
+                    LOG.info(m.toString());
+                    pf.result(new PacketResult(PacketResult.IOSt.SEND_SUCC));
+                } else {
+                    LOG.error(e.getMessage(), e);
+                    pf.result(new PacketResult(PacketResult.IOSt.SEND_FAIL));
+                }
             }
         });
     }

@@ -3,13 +3,13 @@
  */
 package coca.co.ins;
 
-import coca.co.Co;
-import coca.co.CoGroup;
-import coca.co.ins.fmt.InsFormat;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import coca.co.Co;
+import coca.co.CoGroup;
+import coca.co.ins.fmt.InsFormat;
 
 /**
  * @author dzh
@@ -170,13 +170,9 @@ public class BasicCoIns<T> implements CoIns<T> {
         return this;
     }
 
-    //    public String toString() {
-    //        return "id_" + id() + " cntl_" + cntl() + " ttl_" + ttl() + " " + ins + " data_" + data();
-    //    }
-
     @Override
     public String toString() {
-        return String.join("_", id(), String.valueOf(cntl()), String.valueOf(ttl()), ins.toString(), String.valueOf(data()));
+        return "id_" + id() + " cntl_" + cntl() + " ttl_" + ttl() + " " + ins + " data_" + data();
     }
 
 }

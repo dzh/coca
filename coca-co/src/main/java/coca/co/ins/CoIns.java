@@ -3,12 +3,11 @@
  */
 package coca.co.ins;
 
+import java.util.List;
+
 import coca.co.Co;
 import coca.co.CoGroup;
 import coca.co.ins.fmt.InsFormat;
-
-import java.util.List;
-import java.util.StringJoiner;
 
 /**
  * Co Instruction
@@ -47,6 +46,7 @@ public interface CoIns<T> extends Cloneable {
     /**
      * Instruction
      * <p>
+     * 
      * <pre>
      * Ins's code:
      * {@link Ins} reserved:[0,1024]
@@ -130,15 +130,9 @@ public interface CoIns<T> extends Cloneable {
             return code;
         }
 
-        //        @Override
-        //        public String toString() {
-        //            return "Ins[" + code + "_" + name + "_" + format + "]";
-        //        }
-
         @Override
         public String toString() {
-            StringJoiner joiner = new StringJoiner("_", "Ins[", "]");
-            return joiner.add(String.valueOf(code)).add(name).add(format).toString();
+            return "Ins[" + code + "_" + name + "_" + format + "]";
         }
 
         @Override
