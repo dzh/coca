@@ -103,13 +103,14 @@ public class Coca implements Closeable, CocaConst {
 
     protected void startSubThread(final Co co) {
         subT = new Thread(() -> {
+            boolean ignoreSelfIns = Boolean.parseBoolean(co.conf().get(P_COCA_INS_IGNORE_SELF, "true"));
             CoIns<?> ins = null;
             for (;;) {
                 if (co.isClosed()) break;
                 try {
                     ins = co.sub(10, TimeUnit.SECONDS);
                     if (ins == VoidCoIns.VOID || ins == null) continue;
-                    if (co.equals(ins.from())) {// ignore self ins TODO
+                    if (co.equals(ins.from()) && ignoreSelfIns) {// ignore self ins
                         LOG.debug("{} ignore self-ins {}", Coca.this, ins);
                         continue;
                     }

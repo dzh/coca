@@ -23,4 +23,5 @@ public interface CocaConst extends CoConst, InsConst {
 
     /********************** Coca configuration **********************/
     String P_COCA_HANDLER_THREDNUM = "coca.handler.threadnum";
+    String P_COCA_INS_IGNORE_SELF = "coca.ins.ignore.self";
 }
