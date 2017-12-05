@@ -1,7 +1,16 @@
 /**
- * 
+ *
  */
 package coca.co.io.channel;
+
+import coca.co.ins.InsFuture;
+import coca.co.io.ChannelSelector;
+import coca.co.io.packet.InsPacket;
+import coca.co.io.packet.InsPacketException;
+import coca.co.io.packet.PacketCodec;
+import coca.co.io.packet.PacketCodec_v1;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -10,16 +19,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import coca.co.ins.InsFuture;
-import coca.co.io.ChannelSelector;
-import coca.co.io.packet.InsPacket;
-import coca.co.io.packet.InsPacketException;
-import coca.co.io.packet.PacketCodec;
-import coca.co.io.packet.PacketCodec_v1;
 
 /**
  * @author dzh
@@ -106,7 +105,7 @@ public abstract class GroupChannel implements CoChannel {
         open = false;
         wt.interrupt();
         wt.awaitExit();
-        selector = null;
+        //selector = null;
     }
 
     @Override
@@ -140,7 +139,7 @@ public abstract class GroupChannel implements CoChannel {
 
         public void run() {
             LOG.info("{} start!", getName());
-            for (;;) {
+            for (; ; ) {
                 if (!GroupChannel.this.isOpen() && wq.isEmpty()) break;
                 PacketFuture pf = null;
                 try {
@@ -196,11 +195,9 @@ public abstract class GroupChannel implements CoChannel {
     }
 
     /**
-     *
      * @param v
      * @return
-     * @throws NullPointerException
-     *             if the element selected is null
+     * @throws NullPointerException if the element selected is null
      */
     protected PacketCodec codec(int v) {
         for (PacketCodec c : codec) {
