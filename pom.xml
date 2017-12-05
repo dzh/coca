@@ -197,6 +197,7 @@
 		<module>coca-demo</module>
 		<module>coca-kafka</module>
 		<module>coca-memcached</module>
+		<module>coca-jgroups</module>
 	</modules>
 
 </project>

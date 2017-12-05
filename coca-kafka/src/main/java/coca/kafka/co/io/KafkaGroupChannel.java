@@ -132,7 +132,7 @@ public class KafkaGroupChannel extends GroupChannel implements KafkaConst {
 
                         if (!receive(ins)) {
                             consumedSucc = false;
-                            LOG.error("receive msg-{}", ins);
+                            LOG.error("recv msg-{}", ins);
                             break;
                         }
                     }

@@ -206,4 +206,9 @@ public class BasicGroup implements CoGroup {
 
     }
 
+    @Override
+    public Co find(String id) {
+        return members.get(id);
+    }
+
 }
