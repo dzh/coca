@@ -23,6 +23,8 @@ public interface CoGroup {
 
     boolean contain(Co member);
 
+    Co find(String id);
+
     boolean join(Co co);
 
     boolean quit(Co co);

@@ -168,7 +168,11 @@ public class RMQGroupChannel extends GroupChannel implements RMQConst {
         producer.setRetryTimesWhenSendFailed(produceRetryTimes());
         producer.setVipChannelEnabled(false);
         producer.start();
-        producer.createTopic(topicKey(), topic(), topicQueueNum());
+
+        List<?> mqList = producer.fetchPublishMessageQueues(topic());
+        if (mqList == null || mqList.isEmpty()) {
+            producer.createTopic(topicKey(), topic(), topicQueueNum());
+        }
     }
 
     protected String topic() {
