@@ -65,8 +65,8 @@ public class CocaSample {
 
     public boolean initCoca(Map<String, String> conf) {
         coca = newCoca(appName, conf);
-        Ca<String, Integer> guava = new CaGuava<String, Integer>("CocaSample-Guava");
-        Ca<String, Integer> redis = new CaRedis<String, Integer>("CocaSample-Redis");
+        Ca<String, Integer> guava = new CaGuava<>("CocaSample-Guava");
+        Ca<String, Integer> redis = new CaRedis<>("CocaSample-Redis");
         try {
             coca.withStack(stackName, Arrays.asList(guava, redis), new CocaListener() {
                 protected void pubEvict(StackEvent evnt) {
